@@ -99,15 +99,23 @@ int main(void)
   MX_CAN_Init();
   /* USER CODE BEGIN 2 */
   Filtr.FilterNumber=1;
+//  Filtr.FilterScale=CAN_FILTERSCALE_16BIT; zostajemy przy domyœlnych 32bitach
+  Filtr.FilterMode=CAN_FILTERMODE_IDMASK;	//ustawiamy filtrowanie przez maskê, a nie przez listê
+  Filtr.FilterMaskIdHigh=0xFFFF;	// obie maski na 1
+  Filtr.FilterMaskIdLow=0xFFFF;
+  Filtr.FilterIdHigh=0x0020 << 5; //ustawiamy takie highID jakie ID ma p³ytka wysy³aj¹ca oraz przesuwamy bitowo o 5, bo ID ma 11 bitów
+  //tutaj ustawiliœmy 0x0020 czyli decymalnie 32
+  Filtr.FilterIdLow=0x0000; //troche nie wiemy czemu ale zmiana low nic nie zmienia w dzia³aniu naszego kodu
   Filtr.FilterActivation=ENABLE; //aktywacja filtra
+  Filtr.FilterFIFOAssignment = 0;
   if(HAL_CAN_ConfigFilter(&hcan,&Filtr)==HAL_OK) //zapalamy jeœli filtr jest ok
-	  HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
+	  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET);
 
   hcan.pRxMsg=&Receive;
   hcan.pRx1Msg=&Receive2;
 
- if(HAL_CAN_Receive(&hcan,0,5000)==HAL_OK)	//gasimy jeœli odbierzemy ramke
-     HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
+  if(HAL_CAN_Receive(&hcan,0,5000)==HAL_OK)	//gasimy jeœli odbierzemy ramke, UWAGA: czeka na ramke tylko 5 s
+	 HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
 
 
   /* USER CODE END 2 */
