@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
-<ProjectName>E:\studia\agh racing\sezon 20172018\repo\BamocarControlBoard\Receive\\ReceiveFilters</ProjectName>
+<ProjectName>E:\studia\agh racing\sezon 20172018\repo\BamocarControlBoard\Receive\\ReceiveDataVerify</ProjectName>
 <ProjectNature>C</ProjectNature> 
 <CMSIS>..\Drivers\CMSIS</CMSIS>
 <HAL_Driver>E:\Documents\STM32Cube\Repository\STM32Cube_FW_F3_V1.9.0\Drivers\CMSIS</HAL_Driver>
@@ -9,6 +9,7 @@
 
 <filestoremove>
     <file>
+    <name>..\Src\system_stm32f3xx.c</name>
     </file>
 </filestoremove>
 
@@ -22,7 +23,7 @@
 
 <configs>
   <config>
-    <name>ReceiveFilters</name>				
+    <name>ReceiveDataVerify</name>				
     <device>STM32F303RETx</device>		 
     <heapSize>0x200</heapSize>
     <stackSize>0x400</stackSize>
