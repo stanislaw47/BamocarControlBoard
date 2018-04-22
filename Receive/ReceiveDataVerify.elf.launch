@@ -33,11 +33,11 @@
 <booleanAttribute key="org.eclipse.cdt.debug.mi.core.verboseMode" value="false" />
 <stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="${TOOLCHAIN_PATH}/arm-atollic-eabi-gdb" />
 <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2" />
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/ReceiveInterrupt.elf" />
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="ReceiveInterrupt" />
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/ReceiveDataVerify.elf" />
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="ReceiveDataVerify" />
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="" />
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/ReceiveInterrupt" />
+<listEntry value="/ReceiveDataVerify" />
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4" />
