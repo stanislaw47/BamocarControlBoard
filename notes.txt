@@ -1,0 +1,9 @@
+Podfoldery zawieraj¹ konfiguracjê oraz kod potrzebny do wysy³ania oraz odbierania wiadomoœci przez magistralê CAN.
+Jest to projekt wstêpny, który mo¿e stanowiæ bazê do rozwijania komunikacji przez CAN. Ramki nie s¹ filtrowane przez
+p³ytkê odbieraj¹c¹ - odebranie dowolnej ramki gasi diodê (dioda jest wczeœniej zapalana, po sprawdzeniu, ¿e inicjacja filtra
+- który przepuszcza dowolne ramki - przebieg³a pomyœlnie).
+
+Autorzy:
+P.Kozimor
+S.Caba³a
+P.Ogórek
