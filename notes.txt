@@ -3,6 +3,17 @@ Jest to projekt wstêpny, który mo¿e stanowiæ bazê do rozwijania komunikacji prze
 p³ytkê odbieraj¹c¹ - odebranie dowolnej ramki gasi diodê (dioda jest wczeœniej zapalana, po sprawdzeniu, ¿e inicjacja filtra
 - który przepuszcza dowolne ramki - przebieg³a pomyœlnie).
 
+Filtry
+------
+
+Jest to kolejna wersja pracy nad magistral¹ CAN. Ponownie ³¹czymy dwie p³ytki, tym razem dodajemy do projektu filtry,
+które sprawiaj¹, ¿e tylko wiadomoœci od p³ytki z konkretnym ID zostaj¹ odebranê przez p³ytkê odbieraj¹c¹. 
+Szczegó³y zosta³y opisane w komentarzach w 'mainie'.
+W projekcie maski ustawiamy na 1, tak aby tylko wartoœæ ID filtra by³a brana pod uwagê. Nale¿y pamiêtaæ o przesuniêciu bitowym o 5 
+bitów, ale to tak¿e opisane jest w projekcie.
+Jeœli chodzi o kod dla p³ytki wysy³aj¹cej to mo¿na skorzystaæ z kodu wstêpnego i "pobawiæ siê" zmieniaj¹c ID, sprawdzaj¹c przy tym,
+kiedy wiadomoœæ jest odbierana.
+
 Autorzy:
 P.Kozimor
 S.Caba³a
