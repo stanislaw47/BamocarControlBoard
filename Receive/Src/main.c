@@ -41,7 +41,7 @@
 #include "stm32f3xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+//#include "stm32f3xx_ll_system.h" //biblioteka do remapowania usb
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -62,6 +62,22 @@ static void MX_CAN_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
+void HAL_CAN_RxCpltCallback (CAN_HandleTypeDef *hcan)
+{
+	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_SET); //œweicimy jeœli odbierzemy ramke
+	TIM16->CNT=0;
+	HAL_TIM_Base_Start_IT(&htim16);
+	HAL_CAN_Receive_IT(hcan,0);
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance == TIM16)
+	{
+		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_RESET);
+		HAL_TIM_Base_Stop_IT(&htim16);
+	}
+}
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -91,32 +107,34 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+ // LL_SYSCFG_EnableRemapIT_USB(); //podobno trzeba to makro ale chyba dzia³a bez :)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_CAN_Init();
   /* USER CODE BEGIN 2 */
+  //HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
+
+  // konfiguracja przerwañ w CAN-ie
+  __HAL_CAN_ENABLE_IT(&hcan, CAN_IT_FMP0);
+  __HAL_CAN_ENABLE_IT(&hcan, CAN_IT_FMP1);
+
   Filtr.FilterNumber=1;
-//  Filtr.FilterScale=CAN_FILTERSCALE_16BIT; zostajemy przy domyœlnych 32bitach
   Filtr.FilterMode=CAN_FILTERMODE_IDMASK;	//ustawiamy filtrowanie przez maskê, a nie przez listê
   Filtr.FilterMaskIdHigh=0xFFFF;	// obie maski na 1
   Filtr.FilterMaskIdLow=0xFFFF;
   Filtr.FilterIdHigh=0x0020 << 5; //ustawiamy takie highID jakie ID ma p³ytka wysy³aj¹ca oraz przesuwamy bitowo o 5, bo ID ma 11 bitów
-  //tutaj ustawiliœmy 0x0020 czyli decymalnie 32
   Filtr.FilterIdLow=0x0000; //troche nie wiemy czemu ale zmiana low nic nie zmienia w dzia³aniu naszego kodu
   Filtr.FilterActivation=ENABLE; //aktywacja filtra
-  Filtr.FilterFIFOAssignment = 0;
-  if(HAL_CAN_ConfigFilter(&hcan,&Filtr)==HAL_OK) //zapalamy jeœli filtr jest ok
-	  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET);
-
+  HAL_CAN_ConfigFilter(&hcan,&Filtr); //odpalenie filtra
   hcan.pRxMsg=&Receive;
   hcan.pRx1Msg=&Receive2;
+  HAL_CAN_Receive_IT(&hcan,0); //pierwsze przerwanie CAN
 
-  if(HAL_CAN_Receive(&hcan,0,5000)==HAL_OK)	//gasimy jeœli odbierzemy ramke, UWAGA: czeka na ramke tylko 5 s
-	 HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
-
+  HAL_TIM_Base_Start_IT(&htim16); //tutaj wykonujemy start, stop i wyzerowanie timera, ¿eby wyeliminowac b³¹d, w którym
+  HAL_TIM_Base_Stop_IT(&htim16);  // pierwsze przerwanie nie dzia³a³o poprawnie
+  TIM16->CNT=0;
 
   /* USER CODE END 2 */
 
@@ -124,6 +142,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
