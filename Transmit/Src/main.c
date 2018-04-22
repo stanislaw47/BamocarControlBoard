@@ -40,10 +40,10 @@
 #include "main.h"
 #include "stm32f3xx_hal.h"
 #include "can.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -52,7 +52,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t DataToTransmit;
-CanTxMsgTypeDef Tx; //struktura przechwouj¹ca dane do wys³ania
+CanTxMsgTypeDef Tx; //struktura przechwouj¹ca ramkê do wys³ania
 
 /* USER CODE END PV */
 
@@ -61,7 +61,21 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+void HAL_CAN_TxCpltCallback (CAN_HandleTypeDef *hcan)
+{
+	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_SET); //œwiecimy jeœli wyœlemy ramke
+	TIM16->CNT=0;
+	HAL_TIM_Base_Start_IT(&htim16);
+}
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance == TIM16)
+	{
+		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_RESET);
+		HAL_TIM_Base_Stop_IT(&htim16);
+	}
+}
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -91,29 +105,45 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_CAN_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
-  Tx.DLC = 1;
+  //dane do wys³ania
+  DataToTransmit = 0x13;
+
+  //konfiguracja ramki
+  Tx.DLC = 3; //ilosc bajtów danych
   Tx.RTR = CAN_RTR_DATA;
   Tx.IDE = CAN_ID_STD;
-  Tx.StdId = 32;
-  DataToTransmit = 8;
-  Tx.Data[0] = DataToTransmit;
-  hcan.pTxMsg = &Tx; //przekazanie konfiguracji ramki do g³ównej struktury
+  Tx.StdId = 0x0201; //ID ramki, bardzo wa¿ne, wykorzystywane w filtrach
+  Tx.Data[0] = 0x3D;
+  Tx.Data[1] = 0x40;
+  Tx.Data[2] = 0x00;
 
-  if (HAL_CAN_Transmit(&hcan, 500) == HAL_OK)
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+  //przekazanie konfiguracji ramki do g³ównej struktury
+  hcan.pTxMsg = &Tx;
+//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+  HAL_TIM_Base_Start_IT(&htim16); //tutaj wykonujemy start, stop i wyzerowanie timera, ¿eby wyeliminowac b³¹d, w którym
+  HAL_TIM_Base_Stop_IT(&htim16);  // pierwsze przerwanie nie dzia³a³o poprawnie
+  TIM16->CNT=0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+//	  if(HAL_CAN_Transmit_IT(&hcan) == HAL_OK)
+//		  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_SET);
+//	  HAL_Delay(100);
+//	  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_RESET);
+//	  HAL_Delay(2900);
+	  HAL_CAN_Transmit_IT(&hcan);
+	  HAL_Delay(5000);
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -132,6 +162,7 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
@@ -157,6 +188,13 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_TIM16;
+  PeriphClkInit.Tim16ClockSelection = RCC_TIM16CLK_HCLK;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }

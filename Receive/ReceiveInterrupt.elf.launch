@@ -25,7 +25,7 @@
 <booleanAttribute key="com.atollic.hardwaredebug.launch.useRemoteTarget" value="true" />
 <stringAttribute key="com.atollic.hardwaredebug.launch.verifyCommands" value="# Set flash parallelism mode to 32, 16, or 8 bit when using STM32 F2/F4 microcontrollers&#xD;&#xA;# 2=32 bit, 1=16 bit and 0=8 bit parallelism mode&#xD;&#xA;monitor flash set_parallelism_mode 2&#xD;&#xA;&#xD;&#xA;# Load the program executable&#xD;&#xA;load&#x9;&#x9;&#xD;&#xA;&#xD;&#xA;# Enable Debug connection in low power modes (DBGMCU-&gt;CR)&#xD;&#xA;set *0xE0042004 = (*0xE0042004) | 0x7&#xD;&#xA;# The executable starts automatically" />
 <booleanAttribute key="com.atollic.hardwaredebug.stlink.enable_logging" value="false" />
-<stringAttribute key="com.atollic.hardwaredebug.stlink.log_file" value="E:/studia/agh racing/sezon 20172018/repo/BamocarControlBoard/Transmit//\Debug\st-link_gdbserver_log.txt" />
+<stringAttribute key="com.atollic.hardwaredebug.stlink.log_file" value="E:/studia/agh racing/sezon 20172018/repo/BamocarControlBoard/Receive//\Debug\st-link_gdbserver_log.txt" />
 <booleanAttribute key="com.atollic.hardwaredebug.stlink.verify_flash" value="false" />
 <stringAttribute key="org.eclipse.cdt.debug.mi.core.DEBUG_NAME" value="${TOOLCHAIN_PATH}/arm-atollic-eabi-gdb" />
 <stringAttribute key="org.eclipse.cdt.debug.mi.core.commandFactory" value="Standard (Windows)" />
@@ -33,11 +33,11 @@
 <booleanAttribute key="org.eclipse.cdt.debug.mi.core.verboseMode" value="false" />
 <stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="${TOOLCHAIN_PATH}/arm-atollic-eabi-gdb" />
 <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2" />
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/Transmit.elf" />
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="Transmit" />
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/ReceiveInterrupt.elf" />
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="ReceiveInterrupt" />
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="" />
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/Transmit" />
+<listEntry value="/ReceiveInterrupt" />
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4" />
