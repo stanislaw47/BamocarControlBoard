@@ -36,6 +36,6 @@ def test_parse_output():
 # test_parse_input()
 # test_parse_output()
 
-h1 = HIL()
+h1 = HIL(port = 'COM9')
 h1()
-h1.compare()
+# h1.compare()

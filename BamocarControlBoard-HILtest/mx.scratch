@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
-<ProjectName>E:\studia\agh racing\sezon 20172018\repo\AGH-Racing-Electric\CAN_test\5) Testy pseudo-HIL\BamocarControlBoard-HILtest\\BamocarControlBoard-HILtest</ProjectName>
+<ProjectName>E:\studia\agh racing\sezon 20172018\repo\BamocarControlBoard\BamocarControlBoard-HILtest\\BamocarControlBoard-HILtest</ProjectName>
 <ProjectNature>C</ProjectNature> 
 <CMSIS>..\Drivers\CMSIS</CMSIS>
 <HAL_Driver>E:\Documents\STM32Cube\Repository\STM32Cube_FW_F3_V1.9.0\Drivers\CMSIS</HAL_Driver>

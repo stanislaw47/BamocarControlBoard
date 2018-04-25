@@ -46,10 +46,10 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#define CAN_DATA_LEN 4 //ilośc bajtów danych
+#define CAN_DATA_LEN 3 //ilośc bajtów danych
 #define CAN_ID_TX 0x201 //ID ramki wysyłanej do sterownika, wykorzystywane w filtrach
-//#define CAN_ID_RX 0x181 //ID ramki odebranej ze sterownika, wykorzystywane w filtrach
-#define CAN_ID_RX 0x201
+#define CAN_ID_RX 0x181 //ID ramki odebranej ze sterownika, wykorzystywane w filtrach
+//#define CAN_ID_RX 0x201
 
 //#include <string.h>
 /* USER CODE END Includes */
@@ -60,7 +60,7 @@
 /* Private variables ---------------------------------------------------------*/
 CanTxMsgTypeDef Tx; //struktura przechwoująca ramkę do wysłania
 static uint8_t DataUART[CAN_DATA_LEN]; //dane odebrane przez UART
-static uint8_t DataCAN[CAN_DATA_LEN]; //dane odebrane z magistrali CAN
+static uint8_t DataCAN[CAN_DATA_LEN+1]; //dane odebrane z magistrali CAN
 CanRxMsgTypeDef Rx; //struktura przechwoująca ramkę do odebrania
 CanRxMsgTypeDef Rx2; //do drugiej kolejki
 CAN_FilterConfTypeDef Rx_Filter; //struktura do konfiguracji filtra
@@ -72,18 +72,18 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan){
-	HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
-	TIM16->CNT=0;
-	HAL_TIM_Base_Start_IT(&htim16);
+//	HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
+//	TIM16->CNT=0;
+//	HAL_TIM_Base_Start_IT(&htim16);
 }
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 // można dorzucic wewnętrzną weryfikację poprawności danych
 //	if(Rx.Data[0]==cośtam)
 //	i zapalanie innej diody z kolejnym timerem
-//	HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
-//	TIM16->CNT=0;
-//	HAL_TIM_Base_Start_IT(&htim16);
+	HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
+	TIM16->CNT=0;
+	HAL_TIM_Base_Start_IT(&htim16);
 
 	uint8_t i;
 	for(i=0; i<CAN_DATA_LEN; i++){
@@ -94,6 +94,14 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 
 	HAL_CAN_Receive_IT(hcan, CAN_FIFO0); //powrót do nasłuchiwania przerwań
 }
+
+//void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan){
+//	if (HAL_CAN_GetState(hcan) ==  HAL_CAN_STATE_ERROR){
+//		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
+//		TIM16->CNT=0;
+//		HAL_TIM_Base_Start_IT(&htim16);
+//	}
+//}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM16){
