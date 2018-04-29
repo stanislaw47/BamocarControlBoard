@@ -45,9 +45,6 @@ class HIL(object):
             s = self.parse_output(self.ser.read(int(line.split()[-1])))
             s = str(' '.join(s)) + '\n'
             self.outFile.write(s)
-        else:
-            # self.outFile.flush()
-            pass
 
     def compare(self):
         """
