@@ -41,4 +41,4 @@ def test_parse_output():
 
 h1 = HIL()
 h1()
-# h1.compare()
+h1.compare()
