@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=E:/studia/agh racing/sezon 20172018/repo/BamocarControlBoard/BamocarControlBoard-HILtest/Inc
+HeaderPath=E:/studia/agh racing/sezon 20172018/repo/BamocarControlBoard/BamocarControlBoard/Inc
 HeaderFiles=gpio.h;can.h;stm32f3xx_it.h;stm32f3xx_hal_conf.h;main.h;tim.h;dma.h;usart.h;
-SourcePath=E:/studia/agh racing/sezon 20172018/repo/BamocarControlBoard/BamocarControlBoard-HILtest/Src
+SourcePath=E:/studia/agh racing/sezon 20172018/repo/BamocarControlBoard/BamocarControlBoard/Src
 SourceFiles=gpio.c;can.c;stm32f3xx_it.c;stm32f3xx_hal_msp.c;main.c;tim.c;dma.c;usart.c;
 
 [PreviousLibFiles]
