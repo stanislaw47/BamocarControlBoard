@@ -37,8 +37,8 @@ def test_parse_output():
 # ----------
 
 # test_parse_input()
-test_parse_output()
+# test_parse_output()
 
-# h1 = HIL()
-# h1()
+h1 = HIL()
+h1()
 # h1.compare()
