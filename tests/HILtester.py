@@ -1,5 +1,6 @@
 import serial
 from time import sleep
+from binascii import hexlify, unhexlify
 
 
 class HIL(object):
@@ -66,13 +67,14 @@ class HIL(object):
         """
         This method takes list of string with hex data to send via serial port
         """
-        data = bytes(r'\x' + r'\x'.join(data))  # 'bytes' for Python 3 compability, in Python 2 does nothing
-        return eval("'%s'" % data)
+        data = bytes(''.join(data), 'utf8')
+        return unhexlify(data)
 
     @staticmethod
     def parse_output(data):
         """
         This method provides easy and efficient way to read data from serial port
         """
-        res = ' '.join(x.encode('hex') for x in data)
-        return res.split()
+        data = [data[i:i+1] for i in range(len(data))]
+        return [hexlify(b).decode('utf8') for b in data]
+        
