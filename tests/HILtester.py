@@ -8,7 +8,7 @@ class HIL(object):
     for development, testing and debugging of Bamocar Engine Controler by AGH Racing Electric Team
     """
 
-    def __init__(self, port='COM3', wait=1):
+    def __init__(self, port='COM4', wait=1):
         """
         Opens up specified port for communication with board, loads test data from file.
         wait - how long to take before reading serial port
@@ -20,9 +20,9 @@ class HIL(object):
             self.refFile = open("dataREF.txt", "r")
             self.wait = wait
         except serial.SerialException as e:
-            print "Some trouble with serial port: " + str(e)
+            print("Some trouble with serial port: " + str(e))
         except IOError as e:
-            print "There's no 'dataIN.txt' or 'dataREF.txt' file!"
+            print("There's no 'dataIN.txt' or 'dataREF.txt' file!")
 
     def __del__(self):
         """
@@ -57,9 +57,9 @@ class HIL(object):
                 ref = self.refFile.readline()
                 assert line == ref
             else:
-                print "Everything's fine, tests passed"
+                print("Everything's fine, tests passed")
         except AssertionError:
-            print "TEST FAILED!\nShould be " + ref.strip('\n') + " but "+ line.strip('\n') + " received."
+            print("TEST FAILED!\nShould be " + ref.strip('\n') + " but " + line.strip('\n') + " received.")
 
     @staticmethod
     def parse_input(data):

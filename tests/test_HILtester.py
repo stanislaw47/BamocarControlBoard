@@ -4,6 +4,7 @@ from HILtester import HIL
 # tests section
 # -------------
 
+
 def test_parse_input():
     """
     Tester for parse_input function
@@ -13,6 +14,7 @@ def test_parse_input():
     assert HIL.parse_input(["ff", "ff", "ff", "00"]) == "\xff\xff\xff\x00"
     assert HIL.parse_input(["ac", "01", "00", "fe"]) == "\xac\x01\x00\xfe"
     assert HIL.parse_input(["00", "00", "00", "ff"]) == "\x00\x00\x00\xff"
+
 
 def test_parse_output():
     """
@@ -35,6 +37,7 @@ def test_parse_output():
 
 # test_parse_input()
 # test_parse_output()
+
 
 h1 = HIL()
 h1()
