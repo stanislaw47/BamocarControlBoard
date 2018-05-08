@@ -51,6 +51,9 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# Debug
+*/Debug/
+
 # Python
 
 # Byte-compiled / optimized / DLL files
