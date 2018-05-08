@@ -55,6 +55,7 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 static uint8_t DataUART[CAN_DATA_LEN_TX]; //dane odebrane przez UART
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,11 +63,11 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan){
-	HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
-	TIM16->CNT=0;
-	HAL_TIM_Base_Start_IT(&htim16);
-}
+//void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan){
+//	HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
+//	TIM16->CNT=0;
+//	HAL_TIM_Base_Start_IT(&htim16);
+//}
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 // można dorzucic wewnętrzną weryfikację poprawności danych
@@ -76,11 +77,30 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //	TIM16->CNT=0;
 //	HAL_TIM_Base_Start_IT(&htim16);
 
-	memcpy(DataCAN, Rx.Data, sizeof(Rx.Data)); //przepisanie danych
+//	memcpy(DataCAN, Rx.Data, sizeof(Rx.Data)); //przepisanie danych
+//
+//	HAL_UART_Transmit_DMA(&huart2, DataCAN, sizeof(DataCAN)); //wysłanie danych przez UART
+//
+//	HAL_CAN_Receive_IT(hcan, CAN_FIFO0); //powrót do nasłuchiwania przerwań
 
-	HAL_UART_Transmit_DMA(&huart2, DataCAN, sizeof(DataCAN)); //wysłanie danych przez UART
-
-	HAL_CAN_Receive_IT(hcan, CAN_FIFO0); //powrót do nasłuchiwania przerwań
+	switch(Rx.Data[0]){
+	case 0x30: { //speed
+		memcpy(BCB_CAN_Data_Handler.Speed, Rx.Data, sizeof(Rx.Data));
+		break;
+	}
+	case 0x20: { //current
+		memcpy(BCB_CAN_Data_Handler.Current, Rx.Data, sizeof(Rx.Data));
+		break;
+	}
+	case 0x40: { //status
+		memcpy(BCB_CAN_Data_Handler.Status, Rx.Data, sizeof(Rx.Data));
+		break;
+	}
+	default: { //inne dane
+		memcpy(BCB_CAN_Data_Handler.Others, Rx.Data, sizeof(Rx.Data));
+		break;
+	}
+	}
 }
 
 //void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan){
@@ -91,20 +111,20 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //	}
 //}
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	if(htim->Instance == TIM16){
-		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_RESET);
-		HAL_TIM_Base_Stop_IT(&htim16);
-	}
-}
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+//	if(htim->Instance == TIM16){
+//		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_RESET);
+//		HAL_TIM_Base_Stop_IT(&htim16);
+//	}
+//}
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	memcpy(Tx.Data, DataUART, sizeof(Tx.Data)); //przepisanie danych
-
-	HAL_CAN_Transmit_IT(&hcan); //wysłanie ramki przez CANa
-
-	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
-}
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+//	memcpy(Tx.Data, DataUART, sizeof(Tx.Data)); //przepisanie danych
+//
+//	HAL_CAN_Transmit_IT(&hcan); //wysłanie ramki przez CANa
+//
+//	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
+//}
 
 //void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 //}
@@ -147,6 +167,7 @@ int main(void)
   MX_CAN_Init();
   /* USER CODE BEGIN 2 */
   BCB_Init(&hcan);
+  BCB_Connect(&hcan);
 
   //pierwsze uruchomienie timera, konieczne ze względu na błąd w bibliotece HAL
   HAL_TIM_Base_Start_IT(&htim16); //tutaj wykonujemy start, stop i wyzerowanie timera, żeby wyeliminowac błąd, w którym
