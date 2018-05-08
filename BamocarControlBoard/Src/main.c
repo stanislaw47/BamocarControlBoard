@@ -46,23 +46,15 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#define CAN_DATA_LEN 4 //ilośc bajtów danych
-#define CAN_ID_TX 0x201 //ID ramki wysyłanej do sterownika, wykorzystywane w filtrach
-//#define CAN_ID_RX 0x181 //ID ramki odebranej ze sterownika, wykorzystywane w filtrach
-
 #include <string.h>
+#include "BCB.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-CanTxMsgTypeDef Tx; //struktura przechwoująca ramkę do wysłania
-static uint8_t DataUART[CAN_DATA_LEN]; //dane odebrane przez UART
-static uint8_t DataCAN[CAN_DATA_LEN+1]; //dane odebrane z magistrali CAN
-CanRxMsgTypeDef Rx; //struktura przechwoująca ramkę do odebrania
-CanRxMsgTypeDef Rx2; //do drugiej kolejki
-CAN_FilterConfTypeDef Rx_Filter; //struktura do konfiguracji filtra
+static uint8_t DataUART[CAN_DATA_LEN_TX]; //dane odebrane przez UART
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -111,7 +103,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
 	HAL_CAN_Transmit_IT(&hcan); //wysłanie ramki przez CANa
 
-	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
+	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
 }
 
 //void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
@@ -154,39 +146,14 @@ int main(void)
   MX_USART2_UART_Init();
   MX_CAN_Init();
   /* USER CODE BEGIN 2 */
-
-  // konfiguracja przerwañ w CAN-ie
-  __HAL_CAN_ENABLE_IT(&hcan, CAN_IT_FMP0);
-  __HAL_CAN_ENABLE_IT(&hcan, CAN_IT_FMP1);
-
-  //konfiguracja ramki nadawczej
-  Tx.DLC = CAN_DATA_LEN;
-  Tx.RTR = CAN_RTR_DATA;
-  Tx.IDE = CAN_ID_STD; //wersja podstawowa ID
-  Tx.StdId = CAN_ID_TX;
-  hcan.pTxMsg = &Tx; //przekazanie konfiguracji ramki do głównej struktury
-
-  //konfiguracja filtra ramki odbiorczej
-  Rx_Filter.FilterNumber = 1;
-  Rx_Filter.FilterMode = CAN_FILTERMODE_IDMASK;	//ustawiamy filtrowanie przez maske, a nie przez listę
-  Rx_Filter.FilterMaskIdHigh = 0xFFFF; // obie maski na 1, nie mają wtedy znaczenia
-  Rx_Filter.FilterMaskIdLow = 0xFFFF;
-  Rx_Filter.FilterIdHigh = CAN_ID_RX << 5; //ustawiamy takie highID jakie ID ma p³ytka wysy³aj¹ca oraz przesuwamy bitowo o 5, bo ID ma tylko 11 bitów
-  Rx_Filter.FilterIdLow = 0x00; //troche nie wiemy czemu ale zmiana low nic nie zmienia w dzia³aniu naszego kodu - bo tutaj w tym trybie filtrów podajecie drugi identyfikator, który filtr przepusci
-  Rx_Filter.FilterActivation = ENABLE; //aktywacja filtra
-  HAL_CAN_ConfigFilter(&hcan, &Rx_Filter); //odpalenie filtra
-
-  //konfiguracja ramki odbiorczej
-  hcan.pRxMsg = &Rx; //przesłąnie wskaźnika na ramkę do głównej struktury
-  hcan.pRx1Msg = &Rx2; //dla drugiej kolejki
-  HAL_CAN_Receive_IT(&hcan, CAN_FIFO0); //pierwsze przerwanie CAN na kolejce numer 0
+  BCB_Init(&hcan);
 
   //pierwsze uruchomienie timera, konieczne ze względu na błąd w bibliotece HAL
   HAL_TIM_Base_Start_IT(&htim16); //tutaj wykonujemy start, stop i wyzerowanie timera, żeby wyeliminowac błąd, w którym
   HAL_TIM_Base_Stop_IT(&htim16);  // pierwsze przerwanie nie działało poprawnie
   TIM16->CNT=0;
 
-  HAL_UART_Receive_DMA(&huart2, DataUART, CAN_DATA_LEN); //rozpoczęcie nasłuchiwania na dane z UARTa
+  HAL_UART_Receive_DMA(&huart2, DataUART, CAN_DATA_LEN_TX); //rozpoczęcie nasłuchiwania na dane z UARTa
 
 //  HAL_CAN_Receive_IT(&hcan, CAN_FIFO0); //pierwsze przerwanie CAN na kolejce numer 0
   /* USER CODE END 2 */
