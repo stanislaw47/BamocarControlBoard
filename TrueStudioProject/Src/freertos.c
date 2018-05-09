@@ -53,6 +53,7 @@
 
 /* USER CODE BEGIN Includes */     
 #include "ADC_MC.h"
+#include "Matlab.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -65,13 +66,20 @@ osStaticThreadDef_t CAN_ControlBlock;
 osThreadId MatlabHandle;
 uint32_t MatlabBuffer[ 1024 ];
 osStaticThreadDef_t MatlabControlBlock;
-osThreadId ADC_IRQHandle;
-uint32_t ADC_Buffer[ 1024 ];
-osStaticThreadDef_t ADC_ControlBlock;
-osSemaphoreId ADCHandle;
-osStaticSemaphoreDef_t ADC_SEM_ControlBlock;
+osThreadId ADC1_IRQHandle;
+uint32_t ADC1_Buffer[ 1024 ];
+osStaticThreadDef_t ADC1_ControlBlock;
+osThreadId ADC2_IRQHandle;
+uint32_t ADC2_5Buffer[ 256 ];
+osStaticThreadDef_t ADC2_ControlBlock;
+osSemaphoreId ADC1Handle;
+osStaticSemaphoreDef_t ADC1_SEM_ControlBlock;
 osSemaphoreId CANHandle;
 osStaticSemaphoreDef_t CAN_SEM_ControlBlock;
+osSemaphoreId ADC2Handle;
+osStaticSemaphoreDef_t ADC2_SEM_ControlBlock;
+osSemaphoreId Matlab_SEMHandle;
+osStaticSemaphoreDef_t Matlab_ControlBlock;
 
 /* USER CODE BEGIN Variables */
 
@@ -81,12 +89,14 @@ osStaticSemaphoreDef_t CAN_SEM_ControlBlock;
 void StartDefaultTask(void const * argument);
 void CAN_IRQ_Entry(void const * argument);
 void Matlab_Entry(void const * argument);
-void ADC_Entry(void const * argument);
+void ADC1_Entry(void const * argument);
+void ADC2_Entry(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
+void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc);
 /* USER CODE END FunctionPrototypes */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
@@ -119,13 +129,21 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_MUTEX */
 
   /* Create the semaphores(s) */
-  /* definition and creation of ADC */
-  osSemaphoreStaticDef(ADC, &ADC_SEM_ControlBlock);
-  ADCHandle = osSemaphoreCreate(osSemaphore(ADC), 1);
+  /* definition and creation of ADC1 */
+  osSemaphoreStaticDef(ADC1, &ADC1_SEM_ControlBlock);
+  ADC1Handle = osSemaphoreCreate(osSemaphore(ADC1), 1);
 
   /* definition and creation of CAN */
   osSemaphoreStaticDef(CAN, &CAN_SEM_ControlBlock);
   CANHandle = osSemaphoreCreate(osSemaphore(CAN), 1);
+
+  /* definition and creation of ADC2 */
+  osSemaphoreStaticDef(ADC2, &ADC2_SEM_ControlBlock);
+  ADC2Handle = osSemaphoreCreate(osSemaphore(ADC2), 1);
+
+  /* definition and creation of Matlab_SEM */
+  osSemaphoreStaticDef(Matlab_SEM, &Matlab_ControlBlock);
+  Matlab_SEMHandle = osSemaphoreCreate(osSemaphore(Matlab_SEM), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -148,9 +166,13 @@ void MX_FREERTOS_Init(void) {
   osThreadStaticDef(Matlab, Matlab_Entry, osPriorityNormal, 0, 1024, MatlabBuffer, &MatlabControlBlock);
   MatlabHandle = osThreadCreate(osThread(Matlab), NULL);
 
-  /* definition and creation of ADC_IRQ */
-  osThreadStaticDef(ADC_IRQ, ADC_Entry, osPriorityAboveNormal, 0, 1024, ADC_Buffer, &ADC_ControlBlock);
-  ADC_IRQHandle = osThreadCreate(osThread(ADC_IRQ), NULL);
+  /* definition and creation of ADC1_IRQ */
+  osThreadStaticDef(ADC1_IRQ, ADC1_Entry, osPriorityAboveNormal, 0, 1024, ADC1_Buffer, &ADC1_ControlBlock);
+  ADC1_IRQHandle = osThreadCreate(osThread(ADC1_IRQ), NULL);
+
+  /* definition and creation of ADC2_IRQ */
+  osThreadStaticDef(ADC2_IRQ, ADC2_Entry, osPriorityIdle, 0, 256, ADC2_5Buffer, &ADC2_ControlBlock);
+  ADC2_IRQHandle = osThreadCreate(osThread(ADC2_IRQ), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -190,32 +212,58 @@ void CAN_IRQ_Entry(void const * argument)
 void Matlab_Entry(void const * argument)
 {
   /* USER CODE BEGIN Matlab_Entry */
+	Matlab_Init();
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	  osSemaphoreWait(Matlab_SEMHandle,0);
+	  Matlab_Step();
   }
   /* USER CODE END Matlab_Entry */
 }
 
-/* ADC_Entry function */
-void ADC_Entry(void const * argument)
+/* ADC1_Entry function */
+void ADC1_Entry(void const * argument)
 {
-  /* USER CODE BEGIN ADC_Entry */
+  /* USER CODE BEGIN ADC1_Entry */
+	ADC1_MC_Init();
   /* Infinite loop */
   for(;;)
   {
-	  osSemaphoreWait(ADCHandle,0);
-	  ADC_IRQ_Handler();
+	  osSemaphoreWait(ADC1Handle,0);
+	  ADC1_IRQ_Handler();
   }
-  /* USER CODE END ADC_Entry */
+  /* USER CODE END ADC1_Entry */
+}
+
+/* ADC2_Entry function */
+void ADC2_Entry(void const * argument)
+{
+  /* USER CODE BEGIN ADC2_Entry */
+	ADC2_MC_Init();
+  /* Infinite loop */
+  for(;;)
+  {
+	  osSemaphoreWait(ADC2Handle,0);
+	  ADC2_IRQ_Handler();
+  }
+  /* USER CODE END ADC2_Entry */
 }
 
 /* USER CODE BEGIN Application */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	osSemaphoreRelease(ADCHandle);
+	if(hadc==&hadc1)
+		osSemaphoreRelease(ADC1Handle);
+	if(hadc==&hadc2)
+		osSemaphoreRelease(ADC2Handle);
 };
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance == TIM2)
+		osSemaphoreRelease(Matlab_SEMHandle);
+}
 
 /* USER CODE END Application */
 

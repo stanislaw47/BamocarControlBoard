@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
-<ProjectName>D:\AGH_Electric\Motor_controller_F303CC\\Motor_controller_F303CC</ProjectName>
+<ProjectName>D:\BamocarControlBoard\TrueStudioProject\\Motor_controller_F303CC</ProjectName>
 <ProjectNature>C</ProjectNature> 
 <CMSIS>..\Drivers\CMSIS</CMSIS>
 <HAL_Driver>C:\Users\Piotr\STM32Cube\Repository\STM32Cube_FW_F3_V1.9.0\Drivers\CMSIS</HAL_Driver>
