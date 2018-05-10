@@ -7,13 +7,22 @@
 
 #include "ADC_MC.h"
 
+//for DEBUG begin
+#include "stdio.h"
+int __io_putchar(int ch)
+{
+ ITM_SendChar(ch);
+ return(ch);
+}
+//for DEBUG end
+
 static struct ADC_MC_Data ADC_MC_Data_Instance;
 
 void ADC1_MC_Init(void)
 {
 	if(HAL_ADC_Start_DMA(&hadc1,
 						ADC_MC_Data_Instance.DataReceivedAPPS.forDMA,
-						APPS_BuforLength)==HAL_OK)
+						APPS_BuforLength*2)==HAL_OK)
 		if(HAL_TIM_Base_Start(&htim6)==HAL_OK)
 			SET_BIT(ADC_MC_Data_Instance.Status,ADC1_Tim6InitError);
 		else
@@ -31,7 +40,7 @@ void ADC2_MC_Init(void)
 	if(HAL_ADC_Start_DMA(&hadc2,
 						ADC_MC_Data_Instance.DataReceivedBSE.forDMA,
 						BSE_HalfBuforLength*2)==HAL_OK)
-		if(HAL_TIM_Base_Start(&htim7)==HAL_OK)
+		if(HAL_TIM_Base_Start(&htim8)==HAL_OK)
 			SET_BIT(ADC_MC_Data_Instance.Status,ADC2_Tim7InitError);
 		else
 			SET_BIT(ADC_MC_Data_Instance.Status,ADC2_InitError);
@@ -44,11 +53,25 @@ void ADC2_MC_Init(void)
 
 void ADC1_IRQ_Handler(void)
 {
-	arm_mean_q31(ADC_MC_Data_Instance.DataReceivedAPPS.forMean,
+	uint8_t index;
+	for(index=0;index<APPS_BuforLength;index++)
+	{
+		ADC_MC_Data_Instance.APPS_MeanBufor[index]=ADC_MC_Data_Instance.DataReceivedAPPS.forMean[index][0];
+	}
+	arm_mean_q15(ADC_MC_Data_Instance.APPS_MeanBufor,
 				APPS_BuforLength,
-				&ADC_MC_Data_Instance.DataMeanedAPPS.toSend);
-	ADC_MC_Data_Instance.DataToSend.APPS1=ADC_MC_Data_Instance.DataMeanedAPPS.fromMean[0];
-	ADC_MC_Data_Instance.DataToSend.APPS2=ADC_MC_Data_Instance.DataMeanedAPPS.fromMean[1];
+				&ADC_MC_Data_Instance.DataToSend.APPS1);
+	for(index=0;index<APPS_BuforLength;index++)
+	{
+		ADC_MC_Data_Instance.APPS_MeanBufor[index]=ADC_MC_Data_Instance.DataReceivedAPPS.forMean[index][1];
+	}
+	arm_mean_q15(ADC_MC_Data_Instance.APPS_MeanBufor,
+				APPS_BuforLength,
+				&ADC_MC_Data_Instance.DataToSend.APPS2);
+
+	//DEBUG begin
+	//printf("ADC1_IRQ_Handler");
+	//DEBUG end
 };
 
 void ADC2_IRQ_Handler(void)

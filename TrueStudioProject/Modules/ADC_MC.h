@@ -34,14 +34,10 @@ struct ADC_MC_Data
 	union DataReceivedAPPS
 	{
 		uint32_t forDMA[APPS_BuforLength];
-		uint32_t forMean[APPS_BuforLength];
+		uint16_t forMean[APPS_BuforLength][2];
+		uint16_t forTests[APPS_BuforLength*2];
 	} DataReceivedAPPS;
-	union DataToSendAPPS
-	{
-		uint16_t fromMean[2];
-		uint32_t toSend;
-	} DataMeanedAPPS;
-
+	uint16_t APPS_MeanBufor[APPS_BuforLength];
 	union DataReceivedBSE
 	{
 		uint32_t forDMA[BSE_HalfBuforLength];

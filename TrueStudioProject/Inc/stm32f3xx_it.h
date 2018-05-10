@@ -58,7 +58,8 @@ void DMA1_Channel1_IRQHandler(void);
 void DMA1_Channel3_IRQHandler(void);
 void USB_LP_CAN_RX0_IRQHandler(void);
 void CAN_RX1_IRQHandler(void);
-void TIM2_IRQHandler(void);
+void TIM1_UP_TIM16_IRQHandler(void);
+void DMA2_Channel1_IRQHandler(void);
 
 #ifdef __cplusplus
 }

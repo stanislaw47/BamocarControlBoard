@@ -70,8 +70,10 @@ osThreadId ADC1_IRQHandle;
 uint32_t ADC1_Buffer[ 1024 ];
 osStaticThreadDef_t ADC1_ControlBlock;
 osThreadId ADC2_IRQHandle;
-uint32_t ADC2_5Buffer[ 256 ];
+uint32_t ADC2_5Buffer[ 1024 ];
 osStaticThreadDef_t ADC2_ControlBlock;
+osTimerId MatlabTimerHandle;
+osStaticTimerDef_t MatlabTimerControlBlock;
 osSemaphoreId ADC1Handle;
 osStaticSemaphoreDef_t ADC1_SEM_ControlBlock;
 osSemaphoreId CANHandle;
@@ -91,6 +93,7 @@ void CAN_IRQ_Entry(void const * argument);
 void Matlab_Entry(void const * argument);
 void ADC1_Entry(void const * argument);
 void ADC2_Entry(void const * argument);
+void MatlabTimerCallback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -101,6 +104,9 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc);
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
 void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+
+/* GetTimerTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize );
 
 /* Hook prototypes */
 
@@ -116,6 +122,19 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   /* place for user code */
 }                   
 /* USER CODE END GET_IDLE_TASK_MEMORY */
+
+/* USER CODE BEGIN GET_TIMER_TASK_MEMORY */
+static StaticTask_t xTimerTaskTCBBuffer;
+static StackType_t xTimerStack[configTIMER_TASK_STACK_DEPTH];
+  
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )  
+{
+  *ppxTimerTaskTCBBuffer = &xTimerTaskTCBBuffer;
+  *ppxTimerTaskStackBuffer = &xTimerStack[0];
+  *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
+  /* place for user code */
+}                   
+/* USER CODE END GET_TIMER_TASK_MEMORY */
 
 /* Init FreeRTOS */
 
@@ -149,13 +168,19 @@ void MX_FREERTOS_Init(void) {
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
+  /* Create the timer(s) */
+  /* definition and creation of MatlabTimer */
+  osTimerStaticDef(MatlabTimer, MatlabTimerCallback, &MatlabTimerControlBlock);
+  MatlabTimerHandle = osTimerCreate(osTimer(MatlabTimer), osTimerPeriodic, NULL);
+
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
+  osTimerStart(MatlabTimerHandle,50);
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadStaticDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256, defaultTaskBuffer, &defaultTaskControlBlock);
+  osThreadStaticDef(defaultTask, StartDefaultTask, osPriorityIdle, 0, 256, defaultTaskBuffer, &defaultTaskControlBlock);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of CAN_IRQ */
@@ -171,7 +196,7 @@ void MX_FREERTOS_Init(void) {
   ADC1_IRQHandle = osThreadCreate(osThread(ADC1_IRQ), NULL);
 
   /* definition and creation of ADC2_IRQ */
-  osThreadStaticDef(ADC2_IRQ, ADC2_Entry, osPriorityIdle, 0, 256, ADC2_5Buffer, &ADC2_ControlBlock);
+  osThreadStaticDef(ADC2_IRQ, ADC2_Entry, osPriorityAboveNormal, 0, 1024, ADC2_5Buffer, &ADC2_ControlBlock);
   ADC2_IRQHandle = osThreadCreate(osThread(ADC2_IRQ), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -191,7 +216,7 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    osDelay(1000);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -203,7 +228,7 @@ void CAN_IRQ_Entry(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    osDelay(1000);
   }
   /* USER CODE END CAN_IRQ_Entry */
 }
@@ -212,11 +237,12 @@ void CAN_IRQ_Entry(void const * argument)
 void Matlab_Entry(void const * argument)
 {
   /* USER CODE BEGIN Matlab_Entry */
+	osSemaphoreWait(Matlab_SEMHandle,osWaitForever);
 	Matlab_Init();
   /* Infinite loop */
   for(;;)
   {
-	  osSemaphoreWait(Matlab_SEMHandle,0);
+	  osSemaphoreWait(Matlab_SEMHandle,osWaitForever);
 	  Matlab_Step();
   }
   /* USER CODE END Matlab_Entry */
@@ -230,7 +256,7 @@ void ADC1_Entry(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	  osSemaphoreWait(ADC1Handle,0);
+	  osSemaphoreWait(ADC1Handle,osWaitForever);
 	  ADC1_IRQ_Handler();
   }
   /* USER CODE END ADC1_Entry */
@@ -244,26 +270,28 @@ void ADC2_Entry(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	  osSemaphoreWait(ADC2Handle,0);
+	  osSemaphoreWait(ADC2Handle,osWaitForever);
 	  ADC2_IRQ_Handler();
   }
   /* USER CODE END ADC2_Entry */
 }
 
+/* MatlabTimerCallback function */
+void MatlabTimerCallback(void const * argument)
+{
+  /* USER CODE BEGIN MatlabTimerCallback */
+  osSemaphoreRelease(Matlab_SEMHandle);
+  /* USER CODE END MatlabTimerCallback */
+}
+
 /* USER CODE BEGIN Application */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	if(hadc==&hadc1)
+	if(hadc->Instance==ADC1)
 		osSemaphoreRelease(ADC1Handle);
-	if(hadc==&hadc2)
+	if(hadc->Instance==ADC2)
 		osSemaphoreRelease(ADC2Handle);
 };
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-	if(htim->Instance == TIM2)
-		osSemaphoreRelease(Matlab_SEMHandle);
-}
 
 /* USER CODE END Application */
 
