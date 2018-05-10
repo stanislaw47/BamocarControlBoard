@@ -4,13 +4,13 @@
 #include <string.h>
 #include "stm32f3xx_hal.h"
 
-void BCB_Transmit(CanTxMsgTypeDef* pTx, CAN_HandleTypeDef *hpcan, uint8_t* Data){
-	memcpy(pTx->Data, Data, sizeof(pTx->Data)); //przepisanie danych
+void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t* Data){
+	memcpy(hpcan->pTxMsg->Data, Data, sizeof(hpcan->pTxMsg->Data)); //przepisanie danych
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 }
 
 void BCB_Init(CAN_HandleTypeDef *hpcan){
-	// konfiguracja przerwañ w CAN-ie
+	// konfiguracja przerwań w CAN-ie
 	__HAL_CAN_ENABLE_IT(hpcan, CAN_IT_FMP0);
 	__HAL_CAN_ENABLE_IT(hpcan, CAN_IT_FMP1);
 
@@ -40,14 +40,37 @@ void BCB_Init(CAN_HandleTypeDef *hpcan){
 
 void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	//wysłanie pierwszej ramki
-	uint8_t TMP_test_Data[3] = {0x3d, 0xe2, 0x00};
-	BCB_Transmit(&Tx, hpcan, TMP_test_Data);
+	uint8_t TMP_test_Data[3] = {0x00, 0x00, 0x00};
+	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0xe2;  TMP_test_Data[2] = 0x00;
+	BCB_Transmit(hpcan, TMP_test_Data);
+	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0xe8;  TMP_test_Data[2] = 0x00;
+	BCB_Transmit(hpcan, TMP_test_Data);
 
-	//wysłanie zapytań o cyklcizne odpowiedzi
-	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0x30;  TMP_test_Data[2] = DATA_FREQ; //prędkośc
-	BCB_Transmit(&Tx, hpcan, TMP_test_Data);
+	//wysłanie zapytań o cykliczne odpowiedzi
+//	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0x30;  TMP_test_Data[2] = DATA_FREQ; //prędkośc
+//	BCB_Transmit(hpcan, TMP_test_Data);
+
+	// speed command
+	TMP_test_Data[0] = 0x31; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //prędkośc
+	BCB_Transmit(hpcan, TMP_test_Data);
+
+	// torque command
+//	TMP_test_Data[0] = 0x90; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //moment
+//	BCB_Transmit(hpcan, TMP_test_Data);
 }
 
-uint8_t* GetSpeed(){
+void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
+
+	uint8_t TMP_test_Data[3] = {0x00, 0x00, 0x00};
+	//wyłączenie wysyłania danych cyklicznie
+	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0x30;  TMP_test_Data[2] = 0xff; //prędkośc
+	BCB_Transmit(hpcan, TMP_test_Data);
+
+	//wyłączenie
+//	TMP_test_Data[0] = 0x51; TMP_test_Data[1] = 0x04;  TMP_test_Data[2] = 0x00;
+//	BCB_Transmit(hpcan, TMP_test_Data);
+}
+
+uint8_t* BCB_GetSpeed(){
 	return BCB_CAN_Data_Handler.Speed;
 }
