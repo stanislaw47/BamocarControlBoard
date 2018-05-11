@@ -7388,9 +7388,9 @@
 							"left": 432,
 							"top": 936,
 							"width": 593,
-							"height": 233,
+							"height": 246,
 							"autoResize": false,
-							"text": "CAN_MC- sposób użycia biblioteki:\n1. Jednorazowe wywolanie funkcji inicjalizujacej.\n1.Zablokowanie funkcją Lock - od tego momentu musi być zapewniona spójność danych. W przypadku bledu zaniechanie dalszych krokow.\n2. Wyslanie lubo odczytanie danych funkcjami Send oraz Get.\n3. Odblokowanie funkcja Unlock. Wywolanie tej funkcji nastepuje w mozliwie krotkim czasie po wywolaniu funkcji Lock. \n4. Wywolanie funkcji Unlock nastapi zawsze po wywolaniu Lock, o ile Lock zwrocila stan OK.\n\ntypedef enum \n{\n  CAN_OK       = 0x00U,\n  CAN_ERROR    = 0x01U,\n  CAN_BUSY     = 0x02U,\n  CAN_TIMEOUT  = 0x03\n} CAN_StatusTypeDef;",
+							"text": "CAN_MC- sposób użycia biblioteki:\n1. Jednorazowe wywolanie funkcji inicjalizujacej.\n1.Zablokowanie funkcją Lock - od tego momentu musi być zapewniona spójność danych. W przypadku bledu zaniechanie dalszych krokow.\n2. Wyslanie lubo odczytanie danych funkcjami Send oraz Get.\n3. Odblokowanie funkcja Unlock. Wywolanie tej funkcji nastepuje w mozliwie krotkim czasie po wywolaniu funkcji Lock. \n4. Wywolanie funkcji Unlock nastapi zawsze po wywolaniu Lock, o ile Lock zwrocila stan OK.\n5. Funkcja inicjalizująca ma zostać wywolana na kazde narastajace zbocze RDY\ntypedef enum \n{\n  CAN_OK       = 0x00U,\n  CAN_ERROR    = 0x01U,\n  CAN_BUSY     = 0x02U,\n  CAN_TIMEOUT  = 0x03\n} CAN_StatusTypeDef;",
 							"wordWrap": true
 						},
 						{
