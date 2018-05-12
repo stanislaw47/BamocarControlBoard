@@ -52,7 +52,6 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	hpcan->pTxMsg->Data[2] = REPLY_NOW;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 	tmp[0] = READY;
-	tmp[5] = 0x01;
 	if(!memcmp(BCB_GetReady() , tmp, CAN_DATA_LEN_RX))
 		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
 
@@ -71,24 +70,18 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	hpcan->pTxMsg->Data[2] = 0x00;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 
+	HAL_Delay(1); //ważne ze względu na przepełnienie kolejki ramek struktury hcan
 	//konfiguracja wysyłania cyklicznie danych
 	hpcan->pTxMsg->Data[0] = READ;
 	hpcan->pTxMsg->Data[1] = SPEED;
 	hpcan->pTxMsg->Data[2] = DATA_FREQ;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 
+	HAL_Delay(1);
 	hpcan->pTxMsg->Data[0] = READ;
 	hpcan->pTxMsg->Data[1] = TORQUE;
 	hpcan->pTxMsg->Data[2] = DATA_FREQ;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
-
-	// speed command
-//	TMP_test_Data[0] = 0x31; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //prędkośc
-//	BCB_Transmit(hpcan, TMP_test_Data);
-
-	// torque command
-//	TMP_test_Data[0] = 0x90; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //moment
-//	BCB_Transmit(hpcan, TMP_test_Data);
 }
 
 void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
@@ -110,7 +103,7 @@ void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
 	//wyłączenie sterownika
 	hpcan->pTxMsg->Data[0] = MODE;
 	hpcan->pTxMsg->Data[1] = DISABLE;
-	hpcan->pTxMsg->Data[2] = REPLY_STOP;
+	hpcan->pTxMsg->Data[2] = 0x00;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 //	TMP_test_Data[0] = 0x51; TMP_test_Data[1] = 0x04;  TMP_test_Data[2] = 0x00;
 //	BCB_Transmit(hpcan, TMP_test_Data);
@@ -141,12 +134,21 @@ void BCB_SpeedCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2){
 	hpcan->pTxMsg->Data[1] = d2;
 	hpcan->pTxMsg->Data[2] = d1;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+
+	// speed command
+//	TMP_test_Data[0] = 0x31; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //prędkośc
+//	BCB_Transmit(hpcan, TMP_test_Data);
+
 }
 void BCB_TorqueCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2){
 	hpcan->pTxMsg->Data[0] = SET_TORQUE;
 	hpcan->pTxMsg->Data[1] = d2;
 	hpcan->pTxMsg->Data[2] = d1;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+
+	// torque command
+//	TMP_test_Data[0] = 0x90; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //moment
+//	BCB_Transmit(hpcan, TMP_test_Data);
 }
 
 void BCB_StopMotor(CAN_HandleTypeDef *hpcan){

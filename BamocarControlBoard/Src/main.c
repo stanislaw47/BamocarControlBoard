@@ -126,10 +126,7 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 
 //void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 //	if(htim->Instance == TIM16){
-//		HAL_TIM_Base_Stop_IT(&htim16);
-//		TIM16->CNT=0;
-//		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
-////		BCB_Disconnect(&hcan);
+//
 //	}
 //}
 
@@ -189,12 +186,9 @@ int main(void)
   // inicjalizacja biblioteki BamocarControlBoard
   BCB_Init(&hcan);
   BCB_Connect(&hcan);
-//  TIM16->CNT=0;
-//  HAL_TIM_Base_Start_IT(&htim16);
-  HAL_Delay(100);
+  HAL_Delay(300);
+  BCB_StopMotor(&hcan);
   BCB_Disconnect(&hcan);
-
-
 
 //  HAL_UART_Receive_DMA(&huart2, DataUART, CAN_DATA_LEN_TX); //rozpoczęcie nasłuchiwania na dane z UARTa
 
