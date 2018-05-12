@@ -25,6 +25,7 @@
 #define STATUS 0x40 //rejestr do odczytu statusu
 #define READY 0xe2 //rejestr do odczytu czy urz¹dzenie jest gotowe
 #define FRG 0xe8 //rejestr do ustawienia wartoœci FRG
+#define BUS_DC 0xeb //rejestr do odczytu napiêcia magistrali
 #define MODE 0x51 //rejestr do odczytu trybu i w³¹czania/wy³¹czania sterownika
 #define ENABLE 0x00 //w³¹czenie sterownika
 #define DISABLE 0x04 //wy³¹czenie sterownika
@@ -42,6 +43,7 @@ struct BCB_CAN_Data{
 	uint8_t Torque[CAN_DATA_LEN_RX];
 	uint8_t Ready[CAN_DATA_LEN_RX];
 	uint8_t Frg[CAN_DATA_LEN_RX];
+	uint8_t BusDC[CAN_DATA_LEN_RX];
 	uint8_t Others[CAN_DATA_LEN_RX];
 }BCB_CAN_Data_Handler, BCB_CAN_Data_Handler2;
 
@@ -54,6 +56,7 @@ uint8_t* BCB_GetTorque();
 uint8_t* BCB_Current();
 uint8_t* BCB_GetReady();
 uint8_t* BCB_GetFRG();
+uint8_t* BCB_GetBusDC();
 void BCB_SpeedCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2);
 void BCB_TorqueCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2);
 void BCB_StopMotor(CAN_HandleTypeDef *hpcan);

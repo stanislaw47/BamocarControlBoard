@@ -109,6 +109,10 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 			memcpy(BCB_CAN_Data_Handler.Frg, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
 		}
+		case BUS_DC: {
+			memcpy(BCB_CAN_Data_Handler.BusDC, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			break;
+		}
 		default: { //inne dane
 			memcpy(BCB_CAN_Data_Handler.Others, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;

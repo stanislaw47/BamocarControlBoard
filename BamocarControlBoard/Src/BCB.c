@@ -82,6 +82,12 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	hpcan->pTxMsg->Data[1] = TORQUE;
 	hpcan->pTxMsg->Data[2] = DATA_FREQ;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+
+	HAL_Delay(1);
+	hpcan->pTxMsg->Data[0] = READ;
+	hpcan->pTxMsg->Data[1] = BUS_DC;
+	hpcan->pTxMsg->Data[2] = DATA_FREQ;
+	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 }
 
 void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
@@ -127,6 +133,10 @@ uint8_t* BCB_GetTorque(){
 
 uint8_t* BCB_GetCurrent(){
 	return BCB_CAN_Data_Handler.Current;
+}
+
+uint8_t* BCB_GetBusDC(){
+	return BCB_CAN_Data_Handler.BusDC;
 }
 
 void BCB_SpeedCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2){
