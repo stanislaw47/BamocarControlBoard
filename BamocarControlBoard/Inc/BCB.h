@@ -18,10 +18,10 @@
 #define STATUS 0x40 //rejestr do odczytu statusu
 
 
-CanTxMsgTypeDef Tx; //struktura przechwouj¹ca ramkê do wys³ania
-CanRxMsgTypeDef Rx; //struktura przechwouj¹ca ramkê do odebrania
-CanRxMsgTypeDef Rx2; //do drugiej kolejki
-CAN_FilterConfTypeDef Rx_Filter; //struktura do konfiguracji filtra
+CanTxMsgTypeDef TxMessage; //struktura przechwouj¹ca ramkê do wys³ania
+CanRxMsgTypeDef RxMessage; //struktura przechwouj¹ca ramkê do odebrania
+CanRxMsgTypeDef RxMessage2; //do drugiej kolejki
+CAN_FilterConfTypeDef RxFilter; //struktura do konfiguracji filtra
 
 struct BCB_CAN_Data{
 	uint8_t Status[CAN_DATA_LEN_RX];
