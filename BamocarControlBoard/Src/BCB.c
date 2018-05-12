@@ -110,7 +110,11 @@ uint8_t* BCB_GetFRG(){
 	return BCB_CAN_Data_Handler.Frg;
 }
 
-void BCB_StopMotor(){
+uint8_t* BCB_GetTorque(){
+	return BCB_CAN_Data_Handler.Torque;
+}
+
+void BCB_StopMotor(CAN_HandleTypeDef *hpcan){
 	hpcan->pTxMsg->Data[0] = SET_SPEED;
 	hpcan->pTxMsg->Data[1] = 0x00; //zerowa wartośc prędkości
 	hpcan->pTxMsg->Data[2] = 0x00;

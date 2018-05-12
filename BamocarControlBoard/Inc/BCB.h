@@ -17,7 +17,7 @@
 #define READ 0x3d //odczytywanie wartoœci rejestru
 #define REPLY_NOW 0x00 //rozkaz natychmiastowej odpowiedzi
 #define SPEED 0x30 // rejestr do odczytu prêdkoœci
-#define SET_SPEED //rejestr do ustawiania prêdkoœci zadanej
+#define SET_SPEED 0x31//rejestr do ustawiania prêdkoœci zadanej
 #define CURRENT 0x20 //rejestr do odczytu pr¹du
 #define TORQUE 0xa8 //rejestr do odczytu momentu obrotowego
 #define STATUS 0x40 //rejestr do odczytu statusu
@@ -46,8 +46,9 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan);
 void BCB_Disconnect(CAN_HandleTypeDef *hpcan);
 void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t* Data);
 uint8_t* BCB_GetSpeed();
+uint8_t* BCB_GetTorque();
 uint8_t* BCB_GetReady();
 uint8_t* BCB_GetFRG();
-void BCB_StopMotor();
+void BCB_StopMotor(CAN_HandleTypeDef *hpcan);
 
 #endif //BCB_
