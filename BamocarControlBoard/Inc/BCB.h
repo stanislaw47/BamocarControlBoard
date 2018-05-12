@@ -11,6 +11,11 @@
 #define CAN_ID_TX 0x201 //ID ramki wysy³anej do sterownika, wykorzystywane w filtrach
 #define CAN_ID_RX 0x181 //ID ramki odebranej ze sterownika, wykorzystywane w filtrach
 #define DATA_FREQ 0x32 //czêstotliwosc z jak¹ Bamcoar bêdzie zwraca³ ramki danych [50ms]
+#define READ 0x3d //odczytywanie wartoœci rejestru
+#define SPEED 0x30 // rejestr do odczytu prêdkoœci
+#define CURRENT 0x20 //rejestr do odczytu pr¹du
+#define TORQUE 0xa8 //rejestr do odczytu momentu obrotowego
+#define STATUS 0x40 //rejestr do odczytu statusu
 
 
 CanTxMsgTypeDef Tx; //struktura przechwouj¹ca ramkê do wys³ania
