@@ -4,13 +4,13 @@
 #include <string.h>
 #include "stm32f3xx_hal.h"
 
-void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t* Data){
-	memcpy(hpcan->pTxMsg->Data, Data, sizeof(hpcan->pTxMsg->Data)); //przepisanie danych
-	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
-}
+//void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t* Data){
+//	memcpy(hpcan->pTxMsg->Data, Data, sizeof(hpcan->pTxMsg->Data)); //przepisanie danych
+//	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+//}
 
 void BCB_Init(CAN_HandleTypeDef *hpcan){
-	// konfiguracja przerwań w CAN-ie
+	// włączenie obsługi przerwań CAN-a dla kolejek 0 oraz 1
 	__HAL_CAN_ENABLE_IT(hpcan, CAN_IT_FMP0);
 	__HAL_CAN_ENABLE_IT(hpcan, CAN_IT_FMP1);
 
@@ -40,19 +40,46 @@ void BCB_Init(CAN_HandleTypeDef *hpcan){
 
 void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	//wysłanie pierwszej ramki
-	uint8_t TMP_test_Data[3] = {0x00, 0x00, 0x00};
-	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0xe2;  TMP_test_Data[2] = 0x00;
-	BCB_Transmit(hpcan, TMP_test_Data);
-	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0xe8;  TMP_test_Data[2] = 0x00;
-	BCB_Transmit(hpcan, TMP_test_Data);
-
-	//wysłanie zapytań o cykliczne odpowiedzi
-//	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0x30;  TMP_test_Data[2] = DATA_FREQ; //prędkośc
+//	uint8_t TMP_test_Data[3] = {0x00, 0x00, 0x00};
+//	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0xe2;  TMP_test_Data[2] = 0x00;
 //	BCB_Transmit(hpcan, TMP_test_Data);
 
+	uint8_t tmp[CAN_DATA_LEN_RX] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+	// is device ready?
+	hpcan->pTxMsg->Data[0] = READ;
+	hpcan->pTxMsg->Data[1] = READY;
+	hpcan->pTxMsg->Data[2] = REPLY_NOW;
+	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+	tmp[0] = READY;
+	tmp[5] = 0x01;
+	if(!memcmp(BCB_GetReady() , tmp, CAN_DATA_LEN_RX))
+		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
+
+	//is FRG set?
+	hpcan->pTxMsg->Data[0] = READ;
+	hpcan->pTxMsg->Data[1] = FRG;
+	hpcan->pTxMsg->Data[2] = REPLY_NOW;
+	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+	tmp[0] = FRG;
+	if(!memcmp(BCB_GetFRG(), tmp, CAN_DATA_LEN_RX))
+		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
+
+	//enable drive
+	hpcan->pTxMsg->Data[0] = MODE;
+	hpcan->pTxMsg->Data[1] = 0x00; //enable
+	hpcan->pTxMsg->Data[2] = REPLY_NOW;
+	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+
+	//konfiguracja wysyłania cyklicznie danych
+	hpcan->pTxMsg->Data[0] = READ;
+	hpcan->pTxMsg->Data[1] = SPEED;
+	hpcan->pTxMsg->Data[2] = DATA_FREQ;
+	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+
 	// speed command
-	TMP_test_Data[0] = 0x31; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //prędkośc
-	BCB_Transmit(hpcan, TMP_test_Data);
+//	TMP_test_Data[0] = 0x31; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //prędkośc
+//	BCB_Transmit(hpcan, TMP_test_Data);
 
 	// torque command
 //	TMP_test_Data[0] = 0x90; TMP_test_Data[1] = 0xf4;  TMP_test_Data[2] = 0x01; //moment
@@ -61,10 +88,10 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 
 void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
 
-	uint8_t TMP_test_Data[3] = {0x00, 0x00, 0x00};
+//	uint8_t TMP_test_Data[3] = {0x00, 0x00, 0x00};
 	//wyłączenie wysyłania danych cyklicznie
-	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0x30;  TMP_test_Data[2] = 0xff; //prędkośc
-	BCB_Transmit(hpcan, TMP_test_Data);
+//	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0x30;  TMP_test_Data[2] = 0xff; //prędkośc
+//	BCB_Transmit(hpcan, TMP_test_Data);
 
 	//wyłączenie
 //	TMP_test_Data[0] = 0x51; TMP_test_Data[1] = 0x04;  TMP_test_Data[2] = 0x00;
@@ -73,4 +100,19 @@ void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
 
 uint8_t* BCB_GetSpeed(){
 	return BCB_CAN_Data_Handler.Speed;
+}
+
+uint8_t* BCB_GetReady(){
+	return BCB_CAN_Data_Handler.Ready;
+}
+
+uint8_t* BCB_GetFRG(){
+	return BCB_CAN_Data_Handler.Frg;
+}
+
+void BCB_StopMotor(){
+	hpcan->pTxMsg->Data[0] = SET_SPEED;
+	hpcan->pTxMsg->Data[1] = 0x00; //zerowa wartośc prędkości
+	hpcan->pTxMsg->Data[2] = 0x00;
+	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 }

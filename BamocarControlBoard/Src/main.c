@@ -85,26 +85,34 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //	HAL_CAN_Receive_IT(hcan, CAN_FIFO0); //powrót do nasłuchiwania przerwań
 
 	switch(hcan->pRxMsg->Data[0]){
-	case 0x30: { //speed
-		memcpy(BCB_CAN_Data_Handler.Speed, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-		break;
-	}
-	case 0x20: { //current
-		memcpy(BCB_CAN_Data_Handler.Current, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-		break;
-	}
-	case 0x40: { //status
-		memcpy(BCB_CAN_Data_Handler.Status, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-		break;
-	}
-	case 0xa8: { //torque
-		memcpy(BCB_CAN_Data_Handler.Torque, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-		break;
-	}
-	default: { //inne dane
-		memcpy(BCB_CAN_Data_Handler.Others, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-		break;
-	}
+		case SPEED:
+			memcpy(BCB_CAN_Data_Handler.Speed, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			break;
+
+		case CURRENT: {
+			memcpy(BCB_CAN_Data_Handler.Current, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			break;
+		}
+		case STATUS: {
+			memcpy(BCB_CAN_Data_Handler.Status, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			break;
+		}
+		case TORQUE: {
+			memcpy(BCB_CAN_Data_Handler.Torque, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			break;
+		}
+		case READY: {
+			memcpy(BCB_CAN_Data_Handler.Ready, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			break;
+		}
+		case FRG: {
+			memcpy(BCB_CAN_Data_Handler.Frg, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			break;
+		}
+		default: { //inne dane
+			memcpy(BCB_CAN_Data_Handler.Others, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			break;
+		}
 	}
 }
 
