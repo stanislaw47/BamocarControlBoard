@@ -55,7 +55,7 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 static uint8_t DataUART[CAN_DATA_LEN_TX]; //dane odebrane przez UART
-static uint8_t DataCAN[CAN_DATA_LEN_RX]; //dane odebrane z magistrali CAN
+//static uint8_t DataCAN[CAN_DATA_LEN_RX]; //dane odebrane z magistrali CAN
 
 /* USER CODE END PV */
 
