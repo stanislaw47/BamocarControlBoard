@@ -65,58 +65,44 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 //void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan){
-//	HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
-//	TIM16->CNT=0;
-//	HAL_TIM_Base_Start_IT(&htim16);
+//
 //}
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
-// można dorzucic wewnętrzną weryfikację poprawności danych
-//	if(Rx.Data[0]==cośtam)
-//	i zapalanie innej diody z kolejnym timerem
-//	HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET); //świecimy jeśli wyślemy ramke
-//	TIM16->CNT=0;
-//	HAL_TIM_Base_Start_IT(&htim16);
-
-//	memcpy(DataCAN, Rx.Data, sizeof(Rx.Data)); //przepisanie danych
-//
-//	HAL_UART_Transmit_DMA(&huart2, DataCAN, sizeof(DataCAN)); //wysłanie danych przez UART
-//
-//	HAL_CAN_Receive_IT(hcan, CAN_FIFO0); //powrót do nasłuchiwania przerwań
 
 	switch(hcan->pRxMsg->Data[0]){
 		case SPEED:
-			memcpy(BCB_CAN_Data_Handler.Speed, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Speed, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Speed, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
-
-		case CURRENT: {
-			memcpy(BCB_CAN_Data_Handler.Current, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+		case CURRENT:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Current, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Current, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
-		}
-		case STATUS: {
-			memcpy(BCB_CAN_Data_Handler.Status, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+		case STATUS:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Status, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Status, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
-		}
-		case TORQUE: {
-			memcpy(BCB_CAN_Data_Handler.Torque, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+		case TORQUE:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Torque, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Torque, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
-		}
-		case READY: {
-			memcpy(BCB_CAN_Data_Handler.Ready, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+		case READY:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Ready, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Ready, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
-		}
-		case FRG: {
-			memcpy(BCB_CAN_Data_Handler.Frg, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+		case FRG:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Frg, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Frg, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
-		}
-		case BUS_DC: {
-			memcpy(BCB_CAN_Data_Handler.BusDC, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+		case BUS_DC:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.BusDC, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.BusDC, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
-		}
-		default: { //inne dane
-			memcpy(BCB_CAN_Data_Handler.Others, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+		default:  //inne dane
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Others, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Others, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
 			break;
-		}
 	}
 }
 
@@ -135,9 +121,6 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-//	memcpy(Tx.Data, DataUART, sizeof(Tx.Data)); //przepisanie danych
-
-//	HAL_CAN_Transmit_IT(&hcan); //wysłanie ramki przez CANa
 	HAL_UART_Transmit_DMA(&huart2, BCB_GetSpeed(), sizeof(BCB_GetSpeed())); //wysłanie danych przez UART
 	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
 }
@@ -190,8 +173,10 @@ int main(void)
   // inicjalizacja biblioteki BamocarControlBoard
   BCB_Init(&hcan);
   BCB_Connect(&hcan);
+  BCB_CyclicDataEnable(&hcan);
   HAL_Delay(300);
-  BCB_StopMotor(&hcan);
+  BCB_CyclicDataDisable(&hcan);
+//  BCB_StopMotor(&hcan);
   BCB_Disconnect(&hcan);
 
 //  HAL_UART_Receive_DMA(&huart2, DataUART, CAN_DATA_LEN_TX); //rozpoczęcie nasłuchiwania na dane z UARTa

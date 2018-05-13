@@ -47,10 +47,15 @@ struct BCB_CAN_Data{
 	uint8_t Others[CAN_DATA_LEN_RX];
 }BCB_CAN_Data_Handler, BCB_CAN_Data_Handler2;
 
+uint8_t Locked;
+
 void BCB_Init(CAN_HandleTypeDef *hpcan);
 void BCB_Connect(CAN_HandleTypeDef *hpcan);
 void BCB_Disconnect(CAN_HandleTypeDef *hpcan);
-//void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t* Data);
+void BCB_CyclicDataEnable(CAN_HandleTypeDef *hpcan);
+void BCB_CyclicDataDisable(CAN_HandleTypeDef *hpcan);
+void BCB_Lock();
+void BCB_Unlock();
 uint8_t* BCB_GetSpeed();
 uint8_t* BCB_GetTorque();
 uint8_t* BCB_Current();

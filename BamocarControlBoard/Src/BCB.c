@@ -4,10 +4,6 @@
 #include <string.h>
 #include "stm32f3xx_hal.h"
 
-//void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t* Data){
-//	memcpy(hpcan->pTxMsg->Data, Data, sizeof(hpcan->pTxMsg->Data)); //przepisanie danych
-//	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
-//}
 
 void BCB_Init(CAN_HandleTypeDef *hpcan){
 	// włączenie obsługi przerwań CAN-a dla kolejek 0 oraz 1
@@ -35,15 +31,10 @@ void BCB_Init(CAN_HandleTypeDef *hpcan){
 	//konfiguracja ramki odbiorczej
 	hpcan->pRxMsg = &RxMessage; //przesłąnie wskaźnika na ramkę do głównej struktury
 	hpcan->pRx1Msg = &RxMessage2; //dla drugiej kolejki
-//	HAL_CAN_Receive_IT(hpcan, CAN_FIFO0); //pierwsze przerwanie CAN na kolejce numer 0
 }
 
 void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	//wysłanie pierwszej ramki
-//	uint8_t TMP_test_Data[3] = {0x00, 0x00, 0x00};
-//	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0xe2;  TMP_test_Data[2] = 0x00;
-//	BCB_Transmit(hpcan, TMP_test_Data);
-
 	uint8_t tmp[CAN_DATA_LEN_RX] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 	// is device ready?
@@ -69,8 +60,11 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	hpcan->pTxMsg->Data[1] = ENABLE;
 	hpcan->pTxMsg->Data[2] = 0x00;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+}
 
-	HAL_Delay(1); //ważne ze względu na przepełnienie kolejki ramek struktury hcan
+void BCB_CyclicDataEnable(CAN_HandleTypeDef *hpcan){
+//	HAL_Delay(1); //ważne ze względu na przepełnienie kolejki ramek struktury hcan
+
 	//konfiguracja wysyłania cyklicznie danych
 	hpcan->pTxMsg->Data[0] = READ;
 	hpcan->pTxMsg->Data[1] = SPEED;
@@ -90,12 +84,8 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 }
 
-void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
-
-//	uint8_t TMP_test_Data[3] = {0x00, 0x00, 0x00};
+void BCB_CyclicDataDisable(CAN_HandleTypeDef *hpcan){
 	//wyłączenie wysyłania danych cyklicznie
-//	TMP_test_Data[0] = 0x3d; TMP_test_Data[1] = 0x30;  TMP_test_Data[2] = 0xff; //prędkośc
-//	BCB_Transmit(hpcan, TMP_test_Data);
 	hpcan->pTxMsg->Data[0] = READ;
 	hpcan->pTxMsg->Data[1] = SPEED;
 	hpcan->pTxMsg->Data[2] = REPLY_STOP;
@@ -106,13 +96,27 @@ void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
 	hpcan->pTxMsg->Data[2] = REPLY_STOP;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 
+	hpcan->pTxMsg->Data[0] = READ;
+	hpcan->pTxMsg->Data[1] = BUS_DC;
+	hpcan->pTxMsg->Data[2] = REPLY_STOP;
+	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
+}
+
+void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
 	//wyłączenie sterownika
 	hpcan->pTxMsg->Data[0] = MODE;
 	hpcan->pTxMsg->Data[1] = DISABLE;
 	hpcan->pTxMsg->Data[2] = 0x00;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
-//	TMP_test_Data[0] = 0x51; TMP_test_Data[1] = 0x04;  TMP_test_Data[2] = 0x00;
-//	BCB_Transmit(hpcan, TMP_test_Data);
+}
+
+void BCB_Lock(){
+	Locked = 1;
+}
+
+void BCB_Unlock(){
+	BCB_CAN_Data_Handler = BCB_CAN_Data_Handler2;
+	Locked = 0;
 }
 
 uint8_t* BCB_GetSpeed(){
