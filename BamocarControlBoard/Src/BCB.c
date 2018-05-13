@@ -31,6 +31,7 @@ void BCB_Init(CAN_HandleTypeDef *hpcan){
 	//konfiguracja ramki odbiorczej
 	hpcan->pRxMsg = &RxMessage; //przesłąnie wskaźnika na ramkę do głównej struktury
 	hpcan->pRx1Msg = &RxMessage2; //dla drugiej kolejki
+	HAL_CAN_Receive_IT(hpcan, CAN_FIFO0);
 }
 
 void BCB_Connect(CAN_HandleTypeDef *hpcan){
@@ -55,6 +56,7 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 	if(!memcmp(BCB_GetFRG(), tmp, CAN_DATA_LEN_RX))
 		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
 
+//	HAL_Delay(1);
 	//enable drive
 	hpcan->pTxMsg->Data[0] = MODE;
 	hpcan->pTxMsg->Data[1] = ENABLE;
@@ -71,13 +73,13 @@ void BCB_CyclicDataEnable(CAN_HandleTypeDef *hpcan){
 	hpcan->pTxMsg->Data[2] = DATA_FREQ;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 
-	HAL_Delay(1);
+//	HAL_Delay(1);
 	hpcan->pTxMsg->Data[0] = READ;
 	hpcan->pTxMsg->Data[1] = TORQUE;
 	hpcan->pTxMsg->Data[2] = DATA_FREQ;
 	HAL_CAN_Transmit_IT(hpcan); //wysłanie ramki przez CANa
 
-	HAL_Delay(1);
+//	HAL_Delay(1);
 	hpcan->pTxMsg->Data[0] = READ;
 	hpcan->pTxMsg->Data[1] = BUS_DC;
 	hpcan->pTxMsg->Data[2] = DATA_FREQ;
