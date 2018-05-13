@@ -45,25 +45,24 @@ struct BCB_CAN_Data{
 	uint8_t Frg[CAN_DATA_LEN_RX];
 	uint8_t BusDC[CAN_DATA_LEN_RX];
 	uint8_t Others[CAN_DATA_LEN_RX];
-}BCB_CAN_Data_Handler, BCB_CAN_Data_Handler2;
+}BCB_CAN_Data_Handler, BCB_CAN_Data_Handler2; //struktury do przechowywania danych ze sterownika
+static uint8_t Locked = 0; //flaga do zapewnienia spójnoœci odczytywanych danych
 
-uint8_t Locked;
-
-void BCB_Init(CAN_HandleTypeDef *hpcan);
-void BCB_Connect(CAN_HandleTypeDef *hpcan);
-void BCB_Disconnect(CAN_HandleTypeDef *hpcan);
-void BCB_CyclicDataEnable(CAN_HandleTypeDef *hpcan);
-void BCB_CyclicDataDisable(CAN_HandleTypeDef *hpcan);
-void BCB_Lock();
-void BCB_Unlock();
-uint8_t* BCB_GetSpeed();
-uint8_t* BCB_GetTorque();
-uint8_t* BCB_Current();
-uint8_t* BCB_GetReady();
-uint8_t* BCB_GetFRG();
-uint8_t* BCB_GetBusDC();
-void BCB_SpeedCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2);
-void BCB_TorqueCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2);
-void BCB_StopMotor(CAN_HandleTypeDef *hpcan);
+void BCB_Init(CAN_HandleTypeDef *hpcan); //inicjalizuje ramki i filtry
+void BCB_Connect(CAN_HandleTypeDef *hpcan); //sprawdza stan sterownika, FRG i go w³¹cza
+void BCB_Disconnect(CAN_HandleTypeDef *hpcan); //wy³¹cza sterownik
+void BCB_CyclicDataEnable(CAN_HandleTypeDef *hpcan); //w³¹cza wysy³anie danych cyklicznie ze sterownika
+void BCB_CyclicDataDisable(CAN_HandleTypeDef *hpcan);//wy³¹cza wysy³anie danych cyklicznie ze sterownika
+void BCB_Lock(); //zapewnia spójnoœc danych do odczytu
+void BCB_Unlock(); //funkcja komplementarna do Lock, koñczy procedurê odczytu
+uint8_t* BCB_GetSpeed(); //odczyt prêdkoœci
+uint8_t* BCB_GetTorque(); //odczyt momentu
+uint8_t* BCB_Current(); //odczyt pr¹du
+uint8_t* BCB_GetReady(); //odczyt gotowoœci
+uint8_t* BCB_GetFRG(); //odczyt FRG
+uint8_t* BCB_GetBusDC(); //odczyt napiêcia na magistrali
+void BCB_SpeedCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2); //ustawienie prêdkoœci
+void BCB_TorqueCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2); //ustawienie momentu
+void BCB_StopMotor(CAN_HandleTypeDef *hpcan); //zatrzymanie silnika
 
 #endif //BCB_
