@@ -121,7 +121,7 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	HAL_UART_Transmit_DMA(&huart2, BCB_GetSpeed(), sizeof(BCB_GetSpeed())); //wysłanie danych przez UART
+	HAL_UART_Transmit_DMA(huart, BCB_GetSpeed(), sizeof(BCB_GetSpeed())); //wysłanie danych przez UART
 	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
 }
 
@@ -182,7 +182,7 @@ int main(void)
 //  HAL_Delay(300);
 //  BCB_CyclicDataDisable(&hcan);
 //  HAL_Delay(1);
-  BCB_StopMotor(&hcan);
+  BCB_StopCommand(&hcan);
   BCB_Disconnect(&hcan);
 
 //  HAL_UART_Receive_DMA(&huart2, DataUART, CAN_DATA_LEN_TX); //rozpoczęcie nasłuchiwania na dane z UARTa
