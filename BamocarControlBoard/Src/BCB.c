@@ -13,6 +13,43 @@ void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d3){
 		;
 }
 
+void BCB_ReceiveCallback(CAN_HandleTypeDef *hpcan){
+	switch(hpcan->pRxMsg->Data[0]){
+		case SPEED:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Speed, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Speed, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			break;
+		case CURRENT:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Current, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Current, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			break;
+		case STATUS:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Status, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Status, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			break;
+		case TORQUE:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Torque, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Torque, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			break;
+		case READY:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Ready, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Ready, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			break;
+		case FRG:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Frg, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Frg, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			break;
+		case BUS_DC:
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.BusDC, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.BusDC, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			break;
+		default:  //inne dane
+			if(Locked) memcpy(BCB_CAN_Data_Handler2.Others, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			else memcpy(BCB_CAN_Data_Handler.Others, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			break;
+	}
+}
+
 void BCB_Init(CAN_HandleTypeDef *hpcan){
 	// włączenie obsługi przerwań CAN-a dla kolejek 0 oraz 1
 	__HAL_CAN_ENABLE_IT(hpcan, CAN_IT_FMP0);
@@ -39,7 +76,7 @@ void BCB_Init(CAN_HandleTypeDef *hpcan){
 	//konfiguracja ramki odbiorczej
 	hpcan->pRxMsg = &RxMessage; //przesłąnie wskaźnika na ramkę do głównej struktury
 	hpcan->pRx1Msg = &RxMessage2; //dla drugiej kolejki
-	HAL_CAN_Receive_IT(hpcan, CAN_FIFO0);
+//	HAL_CAN_Receive_IT(hpcan, CAN_FIFO0);
 }
 
 void BCB_Connect(CAN_HandleTypeDef *hpcan){
@@ -63,6 +100,7 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 
 void BCB_CyclicDataEnable(CAN_HandleTypeDef *hpcan){
 	//konfiguracja wysyłania cyklicznie danych
+	BCB_Transmit(hpcan, READ, SPEED, DATA_FREQ);
 	BCB_Transmit(hpcan, READ, TORQUE, DATA_FREQ);
 	BCB_Transmit(hpcan, READ, BUS_DC, DATA_FREQ);
 }

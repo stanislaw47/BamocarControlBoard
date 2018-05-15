@@ -52,6 +52,7 @@ void BCB_Init(CAN_HandleTypeDef *hpcan); //inicjalizuje ramki i filtry
 void BCB_Connect(CAN_HandleTypeDef *hpcan); //sprawdza stan sterownika, FRG i go w³¹cza
 void BCB_Disconnect(CAN_HandleTypeDef *hpcan); //wy³¹cza sterownik
 void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d3); //dba o pewnoœc wys³ania ramki
+void BCB_ReceiveCallback(CAN_HandleTypeDef *hpcan); //callback od odebrania ramki
 void BCB_CyclicDataEnable(CAN_HandleTypeDef *hpcan); //w³¹cza wysy³anie danych cyklicznie ze sterownika
 void BCB_CyclicDataDisable(CAN_HandleTypeDef *hpcan);//wy³¹cza wysy³anie danych cyklicznie ze sterownika
 void BCB_Lock(); //zapewnia spójnoœc danych do odczytu

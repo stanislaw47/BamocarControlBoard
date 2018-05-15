@@ -69,41 +69,7 @@ void SystemClock_Config(void);
 //}
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
-
-	switch(hcan->pRxMsg->Data[0]){
-		case SPEED:
-			if(Locked) memcpy(BCB_CAN_Data_Handler2.Speed, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			else memcpy(BCB_CAN_Data_Handler.Speed, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			break;
-		case CURRENT:
-			if(Locked) memcpy(BCB_CAN_Data_Handler2.Current, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			else memcpy(BCB_CAN_Data_Handler.Current, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			break;
-		case STATUS:
-			if(Locked) memcpy(BCB_CAN_Data_Handler2.Status, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			else memcpy(BCB_CAN_Data_Handler.Status, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			break;
-		case TORQUE:
-			if(Locked) memcpy(BCB_CAN_Data_Handler2.Torque, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			else memcpy(BCB_CAN_Data_Handler.Torque, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			break;
-		case READY:
-			if(Locked) memcpy(BCB_CAN_Data_Handler2.Ready, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			else memcpy(BCB_CAN_Data_Handler.Ready, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			break;
-		case FRG:
-			if(Locked) memcpy(BCB_CAN_Data_Handler2.Frg, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			else memcpy(BCB_CAN_Data_Handler.Frg, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			break;
-		case BUS_DC:
-			if(Locked) memcpy(BCB_CAN_Data_Handler2.BusDC, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			else memcpy(BCB_CAN_Data_Handler.BusDC, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			break;
-		default:  //inne dane
-			if(Locked) memcpy(BCB_CAN_Data_Handler2.Others, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			else memcpy(BCB_CAN_Data_Handler.Others, hcan->pRxMsg->Data, sizeof(hcan->pRxMsg->Data));
-			break;
-	}
+	BCB_ReceiveCallback(hcan);
 }
 
 //void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan){
@@ -121,7 +87,7 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	HAL_UART_Transmit_DMA(huart, BCB_GetSpeed(), sizeof(BCB_GetSpeed())); //wysłanie danych przez UART
+	HAL_UART_Transmit_DMA(huart, BCB_GetSpeed(), CAN_DATA_LEN_RX * sizeof(uint8_t)); //wysłanie danych przez UART
 	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
 }
 
@@ -178,7 +144,7 @@ int main(void)
 //  BCB_SpeedCommand(&hcan, 0x01, 0xf4);
 //  HAL_Delay(10000);
   BCB_CyclicDataEnable(&hcan);
-  HAL_Delay(300);
+  HAL_Delay(10000);
   BCB_CyclicDataDisable(&hcan);
 //  HAL_Delay(1);
 //  BCB_StopCommand(&hcan);
