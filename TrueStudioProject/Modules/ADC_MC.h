@@ -24,10 +24,10 @@
 #define ADC2_Tim7InitError	0x08
 
 //DMA interrupt will occur after following number of ADC scans (for APPS)
-#define APPS_BuforLength 50
+#define APPS_BuforLength 100
 
 //DMA interrupt will occur after following number of ADC scans (for BSE)
-#define BSE_HalfBuforLength 25
+#define BSE_HalfBuforLength 50
 
 struct ADC_MC_Data
 {

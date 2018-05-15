@@ -40,7 +40,7 @@ void ADC2_MC_Init(void)
 	if(HAL_ADC_Start_DMA(&hadc2,
 						ADC_MC_Data_Instance.DataReceivedBSE.forDMA,
 						BSE_HalfBuforLength*2)==HAL_OK)
-		if(HAL_TIM_Base_Start(&htim8)==HAL_OK)
+		if(HAL_TIM_Base_Start (&htim8)==HAL_OK)
 			SET_BIT(ADC_MC_Data_Instance.Status,ADC2_Tim7InitError);
 		else
 			SET_BIT(ADC_MC_Data_Instance.Status,ADC2_InitError);

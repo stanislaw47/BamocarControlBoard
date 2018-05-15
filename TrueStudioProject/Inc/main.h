@@ -69,6 +69,8 @@
 #define BamocarTorqueLimit_GPIO_Port GPIOA
 #define BrakeEncoder_Pin GPIO_PIN_7
 #define BrakeEncoder_GPIO_Port GPIOA
+#define Test_Pin GPIO_PIN_1
+#define Test_GPIO_Port GPIOB
 #define LED_Y_Pin GPIO_PIN_13
 #define LED_Y_GPIO_Port GPIOB
 #define LED_R_Pin GPIO_PIN_14

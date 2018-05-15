@@ -288,9 +288,17 @@ void MatlabTimerCallback(void const * argument)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 	if(hadc->Instance==ADC1)
+	{
 		osSemaphoreRelease(ADC1Handle);
+		//for Test
+		HAL_GPIO_TogglePin(Test_GPIO_Port,Test_Pin);
+	}
 	if(hadc->Instance==ADC2)
+	{
 		osSemaphoreRelease(ADC2Handle);
+		//for Test
+		//HAL_GPIO_TogglePin(Test_GPIO_Port,Test_Pin);
+	}
 };
 
 /* USER CODE END Application */
