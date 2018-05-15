@@ -173,16 +173,15 @@ int main(void)
   // inicjalizacja biblioteki BamocarControlBoard
   BCB_Init(&hcan);
   BCB_Connect(&hcan);
-  HAL_Delay(1);
-  BCB_TorqueCommand(&hcan, 0x01, 0xf4);
-  BCB_SpeedCommand(&hcan, 0x01, 0xf4);
-  HAL_Delay(10000);
-//  BCB_StopMotor(&hcan);
-//  BCB_CyclicDataEnable(&hcan);
-//  HAL_Delay(300);
-//  BCB_CyclicDataDisable(&hcan);
 //  HAL_Delay(1);
-  BCB_StopCommand(&hcan);
+//  BCB_TorqueCommand(&hcan, 0x01, 0xf4);
+//  BCB_SpeedCommand(&hcan, 0x01, 0xf4);
+//  HAL_Delay(10000);
+  BCB_CyclicDataEnable(&hcan);
+  HAL_Delay(300);
+  BCB_CyclicDataDisable(&hcan);
+//  HAL_Delay(1);
+//  BCB_StopCommand(&hcan);
   BCB_Disconnect(&hcan);
 
 //  HAL_UART_Receive_DMA(&huart2, DataUART, CAN_DATA_LEN_TX); //rozpoczęcie nasłuchiwania na dane z UARTa
