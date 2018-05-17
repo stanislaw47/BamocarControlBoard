@@ -66,8 +66,8 @@ void MX_CAN_Init(void)
   hcan.Init.Prescaler = 18;
   hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SJW = CAN_SJW_4TQ;
-  hcan.Init.BS1 = CAN_BS1_7TQ;
-  hcan.Init.BS2 = CAN_BS2_4TQ;
+  hcan.Init.BS1 = CAN_BS1_4TQ;
+  hcan.Init.BS2 = CAN_BS2_3TQ;
   hcan.Init.TTCM = DISABLE;
   hcan.Init.ABOM = ENABLE;
   hcan.Init.AWUM = DISABLE;
@@ -105,10 +105,14 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* CAN interrupt Init */
+    HAL_NVIC_SetPriority(USB_HP_CAN_TX_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(USB_HP_CAN_TX_IRQn);
     HAL_NVIC_SetPriority(USB_LP_CAN_RX0_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(USB_LP_CAN_RX0_IRQn);
     HAL_NVIC_SetPriority(CAN_RX1_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(CAN_RX1_IRQn);
+    HAL_NVIC_SetPriority(CAN_SCE_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(CAN_SCE_IRQn);
   /* USER CODE BEGIN CAN_MspInit 1 */
 
   /* USER CODE END CAN_MspInit 1 */
@@ -133,8 +137,10 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* canHandle)
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
 
     /* CAN interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USB_HP_CAN_TX_IRQn);
     HAL_NVIC_DisableIRQ(USB_LP_CAN_RX0_IRQn);
     HAL_NVIC_DisableIRQ(CAN_RX1_IRQn);
+    HAL_NVIC_DisableIRQ(CAN_SCE_IRQn);
   /* USER CODE BEGIN CAN_MspDeInit 1 */
 
   /* USER CODE END CAN_MspDeInit 1 */

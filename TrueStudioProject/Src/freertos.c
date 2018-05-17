@@ -54,6 +54,7 @@
 /* USER CODE BEGIN Includes */     
 #include "ADC_MC.h"
 #include "Matlab.h"
+#include "CAN_MC.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -72,6 +73,12 @@ osStaticThreadDef_t ADC1_ControlBlock;
 osThreadId ADC2_IRQHandle;
 uint32_t ADC2_5Buffer[ 1024 ];
 osStaticThreadDef_t ADC2_ControlBlock;
+osThreadId CAN_IRQ_RxHandle;
+uint32_t CAN_Rx_Buffer[ 1024 ];
+osStaticThreadDef_t CAN_Rx_ControlBlock;
+osThreadId TB_CANHandle;
+uint32_t TB_CAN_7Buffer[ 256 ];
+osStaticThreadDef_t TB_CAN_ControlBlock;
 osTimerId MatlabTimerHandle;
 osStaticTimerDef_t MatlabTimerControlBlock;
 osSemaphoreId ADC1Handle;
@@ -82,6 +89,8 @@ osSemaphoreId ADC2Handle;
 osStaticSemaphoreDef_t ADC2_SEM_ControlBlock;
 osSemaphoreId Matlab_SEMHandle;
 osStaticSemaphoreDef_t Matlab_ControlBlock;
+osSemaphoreId CAN_RXHandle;
+osStaticSemaphoreDef_t CAN_RXControlBlock;
 
 /* USER CODE BEGIN Variables */
 
@@ -93,6 +102,8 @@ void CAN_IRQ_Entry(void const * argument);
 void Matlab_Entry(void const * argument);
 void ADC1_Entry(void const * argument);
 void ADC2_Entry(void const * argument);
+void CAN_IRQ_Rx_Entry(void const * argument);
+void TB_CAN_Entry(void const * argument);
 void MatlabTimerCallback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -164,6 +175,10 @@ void MX_FREERTOS_Init(void) {
   osSemaphoreStaticDef(Matlab_SEM, &Matlab_ControlBlock);
   Matlab_SEMHandle = osSemaphoreCreate(osSemaphore(Matlab_SEM), 1);
 
+  /* definition and creation of CAN_RX */
+  osSemaphoreStaticDef(CAN_RX, &CAN_RXControlBlock);
+  CAN_RXHandle = osSemaphoreCreate(osSemaphore(CAN_RX), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -199,6 +214,14 @@ void MX_FREERTOS_Init(void) {
   osThreadStaticDef(ADC2_IRQ, ADC2_Entry, osPriorityAboveNormal, 0, 1024, ADC2_5Buffer, &ADC2_ControlBlock);
   ADC2_IRQHandle = osThreadCreate(osThread(ADC2_IRQ), NULL);
 
+  /* definition and creation of CAN_IRQ_Rx */
+  osThreadStaticDef(CAN_IRQ_Rx, CAN_IRQ_Rx_Entry, osPriorityHigh, 0, 1024, CAN_Rx_Buffer, &CAN_Rx_ControlBlock);
+  CAN_IRQ_RxHandle = osThreadCreate(osThread(CAN_IRQ_Rx), NULL);
+
+  /* definition and creation of TB_CAN */
+  osThreadStaticDef(TB_CAN, TB_CAN_Entry, osPriorityLow, 0, 256, TB_CAN_7Buffer, &TB_CAN_ControlBlock);
+  TB_CANHandle = osThreadCreate(osThread(TB_CAN), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -225,10 +248,14 @@ void StartDefaultTask(void const * argument)
 void CAN_IRQ_Entry(void const * argument)
 {
   /* USER CODE BEGIN CAN_IRQ_Entry */
+	CAN_MC_Init();
+	CAN_MC_CyclicDataEnable();
+	CAN_MC_TorqueCommand(500);
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1000);
+    osSemaphoreWait(CANHandle,osWaitForever);
+    CAN_MC_TransmitCallback();
   }
   /* USER CODE END CAN_IRQ_Entry */
 }
@@ -276,11 +303,47 @@ void ADC2_Entry(void const * argument)
   /* USER CODE END ADC2_Entry */
 }
 
+/* CAN_IRQ_Rx_Entry function */
+void CAN_IRQ_Rx_Entry(void const * argument)
+{
+  /* USER CODE BEGIN CAN_IRQ_Rx_Entry */
+  /* Infinite loop */
+  for(;;)
+  {
+    osSemaphoreWait(CAN_RXHandle,osWaitForever);
+    CAN_MC_ReceiveCallback();
+  }
+  /* USER CODE END CAN_IRQ_Rx_Entry */
+}
+
+/* TB_CAN_Entry function */
+void TB_CAN_Entry(void const * argument)
+{
+  /* USER CODE BEGIN TB_CAN_Entry */
+	CanTxMsgTypeDef Tx;
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1000);
+    CAN_MC_TorqueCommand(500);
+    Tx.DLC=6;
+    Tx.IDE=CAN_ID_STD;
+    Tx.StdId=CAN_ID_RX;
+    Tx.Data[0]=REG_BUS_DC;
+    Tx.Data[1]=1;
+    Tx.Data[2]=2;
+    hcan.pTxMsg=&Tx;
+    HAL_CAN_Transmit_IT(&hcan);
+  }
+  /* USER CODE END TB_CAN_Entry */
+}
+
 /* MatlabTimerCallback function */
 void MatlabTimerCallback(void const * argument)
 {
   /* USER CODE BEGIN MatlabTimerCallback */
   osSemaphoreRelease(Matlab_SEMHandle);
+  osSemaphoreRelease(CANHandle);
   /* USER CODE END MatlabTimerCallback */
 }
 
@@ -291,7 +354,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	{
 		osSemaphoreRelease(ADC1Handle);
 		//for Test
-		HAL_GPIO_TogglePin(Test_GPIO_Port,Test_Pin);
+		//HAL_GPIO_TogglePin(Test_GPIO_Port,Test_Pin);
 	}
 	if(hadc->Instance==ADC2)
 	{
@@ -300,6 +363,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 		//HAL_GPIO_TogglePin(Test_GPIO_Port,Test_Pin);
 	}
 };
+
+void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan)
+{
+	osSemaphoreRelease(CAN_RXHandle);
+}
 
 /* USER CODE END Application */
 

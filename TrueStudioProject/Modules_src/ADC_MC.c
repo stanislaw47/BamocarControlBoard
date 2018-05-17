@@ -5,9 +5,8 @@
  *      Author: Piotr Kozimor
  */
 
-#include "ADC_MC.h"
+#include "../Modules_inc/ADC_MC.h"
 
-//for DEBUG begin
 #include "stdio.h"
 int __io_putchar(int ch)
 {
