@@ -95,7 +95,7 @@ void BCB_Connect(CAN_HandleTypeDef *hpcan){
 		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
 
 	//enable drive
-	BCB_Transmit(hpcan, MODE, ENABLE, 0x00);
+	BCB_Transmit(hpcan, MODE, MOTOR_ENABLE, 0x00);
 }
 
 void BCB_CyclicDataEnable(CAN_HandleTypeDef *hpcan){
@@ -114,7 +114,7 @@ void BCB_CyclicDataDisable(CAN_HandleTypeDef *hpcan){
 
 void BCB_Disconnect(CAN_HandleTypeDef *hpcan){
 	//wyłączenie sterownika
-	BCB_Transmit(hpcan, MODE, DISABLE, 0x00);
+	BCB_Transmit(hpcan, MODE, MOTOR_DISABLE, 0x00);
 }
 
 void BCB_Lock(){

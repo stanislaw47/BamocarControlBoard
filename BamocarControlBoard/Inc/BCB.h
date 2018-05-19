@@ -27,8 +27,8 @@
 #define FRG 0xe8 //rejestr do ustawienia wartoœci FRG
 #define BUS_DC 0xeb //rejestr do odczytu napiêcia magistrali
 #define MODE 0x51 //rejestr do odczytu trybu i w³¹czania/wy³¹czania sterownika
-#define ENABLE 0x00 //w³¹czenie sterownika
-#define DISABLE 0x04 //wy³¹czenie sterownika
+#define MOTOR_ENABLE 0x00 //w³¹czenie sterownika
+#define MOTOR_DISABLE 0x04 //wy³¹czenie sterownika
 
 
 CanTxMsgTypeDef TxMessage; //struktura przechwouj¹ca ramkê do wys³ania
