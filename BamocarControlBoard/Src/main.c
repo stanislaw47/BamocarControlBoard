@@ -64,9 +64,9 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-//void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan){
-//
-//}
+void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan){
+	CLEAR_BIT(CAN_MC_Status, 1<<CAN_TX_ERROR);
+}
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 	CAN_MC_ReceiveCallback(hcan);
@@ -80,11 +80,14 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //	}
 //}
 
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-//	if(htim->Instance == TIM16){
-//
-//	}
-//}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	if(htim->Instance == TIM16){
+		if(!fifo_empty(&TxBuffer) && !READ_BIT(CAN_MC_Status, 1<<CAN_TX_ERROR)){
+			if(HAL_CAN_Transmit_IT(&hcan) != HAL_OK)
+				SET_BIT(CAN_MC_Status, 1<<CAN_TX_ERROR);
+		}
+	}
+}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 //	HAL_UART_Transmit_DMA(huart, CAN_MC_GetSpeed(), CAN_DATA_LEN_RX * sizeof(uint8_t)); //wysłanie danych przez UART

@@ -5,11 +5,11 @@
 
 
 void CAN_MC_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d3){
-	hpcan->pTxMsg->Data[0] = d1;
-	hpcan->pTxMsg->Data[1] = d2;
-	hpcan->pTxMsg->Data[2] = d3;
-	while(HAL_CAN_Transmit_IT(hpcan) != HAL_OK) //wysłanie ramki przez CANa
-		;
+	CanTxMsgTypeDef Frame = *hpcan->pTxMsg;
+	Frame.Data[0] = d1;
+	Frame.Data[1] = d2;
+	Frame.Data[2] = d3;
+	fifo_push(&TxBuffer, &Frame);
 }
 
 void CAN_MC_ReceiveCallback(CAN_HandleTypeDef *hpcan){
@@ -48,6 +48,9 @@ void CAN_MC_ReceiveCallback(CAN_HandleTypeDef *hpcan){
 }
 
 void CAN_MC_Init(CAN_HandleTypeDef *hpcan){
+	// initialize buffer for transmit frames
+	fifo_init(&TxBuffer, 8);
+
 	// turn on CAN interrupts for queues 0 and 1
 	__HAL_CAN_ENABLE_IT(hpcan, CAN_IT_FMP0);
 	__HAL_CAN_ENABLE_IT(hpcan, CAN_IT_FMP1);
@@ -109,7 +112,7 @@ void CAN_MC_CyclicDataDisable(CAN_HandleTypeDef *hpcan){
 }
 
 void CAN_MC_Disconnect(CAN_HandleTypeDef *hpcan){
-	//enable of drive
+	//disnable of drive
 	CAN_MC_Transmit(hpcan, MODE, MOTOR_DISABLE, 0x00);
 }
 

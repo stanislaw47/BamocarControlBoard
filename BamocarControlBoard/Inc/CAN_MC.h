@@ -7,6 +7,7 @@
 //includes
 #include <string.h>
 #include "can.h"
+#include "FIFO.h"
 
 //defines
 // CAN configuration parameters
@@ -24,9 +25,10 @@
 //error status defines
 #define CAN_FILTER_ERROR	1		//bit number in CAN_MC_Status which indicate filter initialization error
 #define CAN_RX_ERROR		2		//bit number in CAN_MC_Status which indicate frame receive error
-#define MC_READY			3		//bit number in CAN_MC_Status which indicate that device is not ready error
-#define MC_FRG				4		//bit number in CAN_MC_Status which indicate is FRG set error
-#define LOCKED				5		//bit number in CAN_MC_Status which indicate whther data are locked or not
+#define CAN_TX_ERROR		3		//bit number in CAN_MC_Status which indicate frame transmit error
+#define MC_READY			4		//bit number in CAN_MC_Status which indicate that device is not ready error
+#define MC_FRG				5		//bit number in CAN_MC_Status which indicate is FRG set error
+#define LOCKED				6		//bit number in CAN_MC_Status which indicate whther data are locked or not
 
 //data configuration registers
 #define SPEED 				0x30 	//value of register to read speed
@@ -47,6 +49,7 @@ CanTxMsgTypeDef TxMessage; //structure for trasmitted frame
 CanRxMsgTypeDef RxMessage; //structure for received fram
 CanRxMsgTypeDef RxMessage2; //for second queue
 CAN_FilterConfTypeDef RxFilter; //structure for filter
+fifo TxBuffer; //buffer for send frames
 
 static struct __CAN_MC_Data{
 	uint32_t Status;
