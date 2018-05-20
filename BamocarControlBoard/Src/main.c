@@ -87,8 +87,8 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	HAL_UART_Transmit_DMA(huart, CAN_MC_GetSpeed(), CAN_DATA_LEN_RX * sizeof(uint8_t)); //wysłanie danych przez UART
-	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
+//	HAL_UART_Transmit_DMA(huart, CAN_MC_GetSpeed(), CAN_DATA_LEN_RX * sizeof(uint8_t)); //wysłanie danych przez UART
+//	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
 }
 
 //void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){

@@ -2,7 +2,6 @@
 
 //includes
 #include <string.h>
-//#include "stm32f3xx_hal.h"
 
 
 void CAN_MC_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d3){
@@ -16,37 +15,35 @@ void CAN_MC_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d
 void CAN_MC_ReceiveCallback(CAN_HandleTypeDef *hpcan){
 	switch(hpcan->pRxMsg->Data[0]){
 		case SPEED:
-			if(Locked) memcpy(CAN_MC_CAN_Data_Handler2.Speed, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			else memcpy(CAN_MC_CAN_Data_Handler.Speed, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			CAN_MC_Data.Speed = ((uint16_t)(hpcan->pRxMsg->Data[1]) << 8) | hpcan->pRxMsg->Data[2];
 			break;
 		case CURRENT:
-			if(Locked) memcpy(CAN_MC_CAN_Data_Handler2.Current, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			else memcpy(CAN_MC_CAN_Data_Handler.Current, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			CAN_MC_Data.Current = ((uint16_t)(hpcan->pRxMsg->Data[1]) << 8) | hpcan->pRxMsg->Data[2];
 			break;
-		case STATUS:
-			if(Locked) memcpy(CAN_MC_CAN_Data_Handler2.Status, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			else memcpy(CAN_MC_CAN_Data_Handler.Status, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			break;
+		case STATUS:{
+			CAN_MC_Data.Status = hpcan->pRxMsg->Data[3];
+			CAN_MC_Data.Status = (CAN_MC_Data.Status << 8) + hpcan->pRxMsg->Data[2];
+			CAN_MC_Data.Status = (CAN_MC_Data.Status << 8) + hpcan->pRxMsg->Data[1];
+			CAN_MC_Data.Status = (CAN_MC_Data.Status << 8) + hpcan->pRxMsg->Data[0];
+			break;}
 		case TORQUE:
-			if(Locked) memcpy(CAN_MC_CAN_Data_Handler2.Torque, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			else memcpy(CAN_MC_CAN_Data_Handler.Torque, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			CAN_MC_Data.Torque = ((uint16_t)(hpcan->pRxMsg->Data[1]) << 8) | hpcan->pRxMsg->Data[2];
 			break;
 		case READY:
-			if(Locked) memcpy(CAN_MC_CAN_Data_Handler2.Ready, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			else memcpy(CAN_MC_CAN_Data_Handler.Ready, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			CAN_MC_Data.Ready = ((uint16_t)(hpcan->pRxMsg->Data[1]) << 8) | hpcan->pRxMsg->Data[2];
 			break;
 		case FRG:
-			if(Locked) memcpy(CAN_MC_CAN_Data_Handler2.Frg, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			else memcpy(CAN_MC_CAN_Data_Handler.Frg, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			CAN_MC_Data.Frg = ((uint16_t)(hpcan->pRxMsg->Data[1]) << 8) | hpcan->pRxMsg->Data[2];
 			break;
 		case BUS_DC:
-			if(Locked) memcpy(CAN_MC_CAN_Data_Handler2.BusDC, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			else memcpy(CAN_MC_CAN_Data_Handler.BusDC, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
+			CAN_MC_Data.BusDC = ((uint16_t)(hpcan->pRxMsg->Data[1]) << 8) | hpcan->pRxMsg->Data[2];
 			break;
-		default:  //other data
-			if(Locked) memcpy(CAN_MC_CAN_Data_Handler2.Others, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			else memcpy(CAN_MC_CAN_Data_Handler.Others, hpcan->pRxMsg->Data, sizeof(hpcan->pRxMsg->Data));
-			break;
+		default:{  //other data
+			CAN_MC_Data.Others = hpcan->pRxMsg->Data[3];
+			CAN_MC_Data.Others = (CAN_MC_Data.Others << 8) + hpcan->pRxMsg->Data[2];
+			CAN_MC_Data.Others = (CAN_MC_Data.Others << 8) + hpcan->pRxMsg->Data[1];
+			CAN_MC_Data.Others = (CAN_MC_Data.Others << 8) + hpcan->pRxMsg->Data[0];
+			break;}
 	}
 }
 
@@ -65,34 +62,33 @@ void CAN_MC_Init(CAN_HandleTypeDef *hpcan){
 	//configuration of frame filter
 	RxFilter.FilterNumber = 1;
 	RxFilter.FilterMode = CAN_FILTERMODE_IDMASK; //set filtering mode to mask, not list
+	RxFilter.FilterMode = CAN_FILTERSCALE_16BIT; //16 bits mask mode
 	RxFilter.FilterMaskIdHigh = 0xFFFF; //when mask is set to max, it doesn't matter
 	RxFilter.FilterMaskIdLow = 0xFFFF;
 	RxFilter.FilterIdHigh = CAN_ID_RX << 5; //CAN ID has only 11 bits, so it has to be moved by 5 bits
 	RxFilter.FilterIdLow = 0x00; //to work fine, it has to be set to zero
+	RxFilter.FilterFIFOAssignment = CAN_FIFO0;
 	RxFilter.FilterActivation = ENABLE; //activation of filter
 	if (HAL_CAN_ConfigFilter(hpcan, &RxFilter) != HAL_OK) //turn on filter and check whether it's fine
-		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
+		SET_BIT(CAN_MC_Status, 1<<CAN_FILTER_ERROR);
 
 	//configuration od receive frame
 	hpcan->pRxMsg = &RxMessage; //pass this structure to main structure of CAN handler
 	hpcan->pRx1Msg = &RxMessage2; //for second queue
-//	HAL_CAN_Receive_IT(hpcan, CAN_FIFO0);
+	if (HAL_CAN_Receive_IT(hpcan, CAN_FIFO0) != HAL_OK)
+		SET_BIT(CAN_MC_Status, 1<<CAN_RX_ERROR);
 }
 
 void CAN_MC_Connect(CAN_HandleTypeDef *hpcan){
-	uint8_t tmp[CAN_DATA_LEN_RX] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
 	// is device ready?
 	CAN_MC_Transmit(hpcan, READ, READY, REPLY_NOW);
-	tmp[0] = READY;
-	if(!memcmp(CAN_MC_GetReady() , tmp, CAN_DATA_LEN_RX))
-		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
+	if(hpcan->pRxMsg->Data[1] != 0x01 || hpcan->pRxMsg->Data[2] != 0x00 || hpcan->pRxMsg->Data[3] != 0x00)
+		SET_BIT(CAN_MC_Status, 1<<MC_READY);
 
 	//is FRG set?
 	CAN_MC_Transmit(hpcan, READ, FRG, REPLY_NOW);
-	tmp[0] = FRG;
-	if(!memcmp(CAN_MC_GetFRG(), tmp, CAN_DATA_LEN_RX))
-		HAL_GPIO_WritePin(LEDMain_GPIO_Port, LEDMain_Pin, GPIO_PIN_SET);
+	if(hpcan->pRxMsg->Data[1] != 0x01 || hpcan->pRxMsg->Data[2] != 0x00 || hpcan->pRxMsg->Data[3] != 0x00)
+		SET_BIT(CAN_MC_Status, 1<<MC_FRG);
 
 	//enable drive
 	CAN_MC_Transmit(hpcan, MODE, MOTOR_ENABLE, 0x00);
@@ -118,44 +114,44 @@ void CAN_MC_Disconnect(CAN_HandleTypeDef *hpcan){
 }
 
 void CAN_MC_Lock(){
-	Locked = 1;
+	CAN_MC_DataLocked = CAN_MC_Data;
+	SET_BIT(CAN_MC_Status, 1<<LOCKED);
 }
 
 void CAN_MC_Unlock(){
-	CAN_MC_CAN_Data_Handler = CAN_MC_CAN_Data_Handler2;
-	Locked = 0;
+	CLEAR_BIT(CAN_MC_Status, 1<<LOCKED);
 }
 
-uint8_t* CAN_MC_GetSpeed(){
-	return CAN_MC_CAN_Data_Handler.Speed;
+uint16_t CAN_MC_GetSpeed(){
+	return CAN_MC_Data.Speed;
 }
 
-uint8_t* CAN_MC_GetReady(){
-	return CAN_MC_CAN_Data_Handler.Ready;
+uint16_t CAN_MC_GetReady(){
+	return CAN_MC_Data.Ready;
 }
 
-uint8_t* CAN_MC_GetFRG(){
-	return CAN_MC_CAN_Data_Handler.Frg;
+uint16_t CAN_MC_GetFRG(){
+	return CAN_MC_Data.Frg;
 }
 
-uint8_t* CAN_MC_GetTorque(){
-	return CAN_MC_CAN_Data_Handler.Torque;
+uint16_t CAN_MC_GetTorque(){
+	return CAN_MC_Data.Torque;
 }
 
-uint8_t* CAN_MC_GetCurrent(){
-	return CAN_MC_CAN_Data_Handler.Current;
+uint16_t CAN_MC_GetCurrent(){
+	return CAN_MC_Data.Current;
 }
 
-uint8_t* CAN_MC_GetBusDC(){
-	return CAN_MC_CAN_Data_Handler.BusDC;
+uint16_t CAN_MC_GetBusDC(){
+	return CAN_MC_Data.BusDC;
 }
 
-void CAN_MC_SpeedCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2){
-	CAN_MC_Transmit(hpcan, SET_SPEED, d2, d1);
+void CAN_MC_SpeedCommand(CAN_HandleTypeDef *hpcan, uint16_t data){
+	CAN_MC_Transmit(hpcan, SET_SPEED, data % 256, data >> 8 % 256);
 }
 
-void CAN_MC_TorqueCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2){
-	CAN_MC_Transmit(hpcan, SET_TORQUE, d2, d1);
+void CAN_MC_TorqueCommand(CAN_HandleTypeDef *hpcan, uint16_t data){
+	CAN_MC_Transmit(hpcan, SET_TORQUE, data % 256, data >> 8 % 256);
 }
 
 void CAN_MC_StopCommand(CAN_HandleTypeDef *hpcan){

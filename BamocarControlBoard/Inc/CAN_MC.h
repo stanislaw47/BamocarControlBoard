@@ -9,14 +9,26 @@
 #include "can.h"
 
 //defines
+// CAN configuration parameters
 #define CAN_DATA_LEN_TX 	3 		//number of bytes send to Bamocar
 #define CAN_DATA_LEN_RX 	6 		//number fo bytes received from Bamcoar, fixed via NDrive
 #define CAN_ID_TX 			0x201 	//send frame ID, used in filters
 #define CAN_ID_RX 			0x181 	//received frame ID, used in filters
+
+//registers configuration parameters
 #define DATA_FREQ 			0x32 	//cyclic data frequency, in miliseconds [50]
 #define READ 				0x3d 	//value for reading registers
 #define REPLY_NOW 			0x00 	//value for immediately reply
 #define REPLY_STOP 			0xff 	//value for stop sending cyclic data
+
+//error status defines
+#define CAN_FILTER_ERROR	1		//bit number in CAN_MC_Status which indicate filter initialization error
+#define CAN_RX_ERROR		2		//bit number in CAN_MC_Status which indicate frame receive error
+#define MC_READY			3		//bit number in CAN_MC_Status which indicate that device is not ready error
+#define MC_FRG				4		//bit number in CAN_MC_Status which indicate is FRG set error
+#define LOCKED				5		//bit number in CAN_MC_Status which indicate whther data are locked or not
+
+//data configuration registers
 #define SPEED 				0x30 	//value of register to read speed
 #define SET_SPEED 			0x31	//value of register to write speed
 #define CURRENT 			0x20 	//value of register to read speed
@@ -36,17 +48,18 @@ CanRxMsgTypeDef RxMessage; //structure for received fram
 CanRxMsgTypeDef RxMessage2; //for second queue
 CAN_FilterConfTypeDef RxFilter; //structure for filter
 
-struct CAN_MC_CAN_Data{
-	uint8_t Status[CAN_DATA_LEN_RX];
-	uint8_t Speed[CAN_DATA_LEN_RX];
-	uint8_t Current[CAN_DATA_LEN_RX];
-	uint8_t Torque[CAN_DATA_LEN_RX];
-	uint8_t Ready[CAN_DATA_LEN_RX];
-	uint8_t Frg[CAN_DATA_LEN_RX];
-	uint8_t BusDC[CAN_DATA_LEN_RX];
-	uint8_t Others[CAN_DATA_LEN_RX];
-}CAN_MC_CAN_Data_Handler, CAN_MC_CAN_Data_Handler2; //structure for data from Bamocar
-static uint8_t Locked = 0; //flag for data reading consistency
+static struct __CAN_MC_Data{
+	uint32_t Status;
+	uint16_t Speed;
+	uint16_t Current;
+	uint16_t Torque;
+	uint16_t Ready;
+	uint16_t Frg;
+	uint16_t BusDC;
+	uint32_t Others;
+}CAN_MC_Data, CAN_MC_DataLocked; //structure for data from Bamocar
+
+static uint8_t CAN_MC_Status; //
 
 void CAN_MC_Init(CAN_HandleTypeDef *hpcan); //initialization fo frames and filters
 void CAN_MC_Connect(CAN_HandleTypeDef *hpcan); //checks whether device is ready and FRG set
@@ -57,14 +70,14 @@ void CAN_MC_CyclicDataEnable(CAN_HandleTypeDef *hpcan); //turns on cyclic data s
 void CAN_MC_CyclicDataDisable(CAN_HandleTypeDef *hpcan);//turns off cyclic data sending by Bamcoar
 void CAN_MC_Lock(); //handles Locked flag, starts reading data
 void CAN_MC_Unlock(); //handles Locked flag, finishes reading data
-uint8_t* CAN_MC_GetSpeed(); //read value of speed
-uint8_t* CAN_MC_GetTorque(); //read value of torque
-uint8_t* CAN_MC_Current(); //read value of current
-uint8_t* CAN_MC_GetReady(); //check whether device is ready
-uint8_t* CAN_MC_GetFRG(); //read value of FRG
-uint8_t* CAN_MC_GetBusDC(); //read value of bus voltage
-void CAN_MC_SpeedCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2); //set speed
-void CAN_MC_TorqueCommand(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2); //set torque
+uint16_t CAN_MC_GetSpeed(); //read value of speed
+uint16_t CAN_MC_GetTorque(); //read value of torque
+uint16_t CAN_MC_Current(); //read value of current
+uint16_t CAN_MC_GetReady(); //check whether device is ready
+uint16_t CAN_MC_GetFRG(); //read value of FRG
+uint16_t CAN_MC_GetBusDC(); //read value of bus voltage
+void CAN_MC_SpeedCommand(CAN_HandleTypeDef *hpcan, uint16_t data); //set speed
+void CAN_MC_TorqueCommand(CAN_HandleTypeDef *hpcan, uint16_t data); //set torque
 void CAN_MC_StopCommand(CAN_HandleTypeDef *hpcan); //stop motor
 
 #endif //CAN_MC_
