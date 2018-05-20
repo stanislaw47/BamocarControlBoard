@@ -6,7 +6,7 @@
 
 //includes
 #include <string.h>
-#include "stm32f3xx_hal.h"
+#include "can.h"
 
 //defines
 #define CAN_DATA_LEN_TX 	3 		//number of bytes send to Bamocar

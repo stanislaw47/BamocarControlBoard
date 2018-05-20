@@ -2,7 +2,7 @@
 
 //includes
 #include <string.h>
-#include "stm32f3xx_hal.h"
+//#include "stm32f3xx_hal.h"
 
 
 void CAN_MC_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d3){
