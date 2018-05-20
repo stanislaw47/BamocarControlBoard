@@ -37,6 +37,7 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
+#include <CAN_MC.h>
 #include "main.h"
 #include "stm32f3xx_hal.h"
 #include "can.h"
@@ -47,7 +48,6 @@
 
 /* USER CODE BEGIN Includes */
 #include <string.h>
-#include "BCB.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -69,7 +69,7 @@ void SystemClock_Config(void);
 //}
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
-	BCB_ReceiveCallback(hcan);
+	CAN_MC_ReceiveCallback(hcan);
 }
 
 //void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan){
@@ -87,7 +87,7 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 //}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	HAL_UART_Transmit_DMA(huart, BCB_GetSpeed(), CAN_DATA_LEN_RX * sizeof(uint8_t)); //wysłanie danych przez UART
+	HAL_UART_Transmit_DMA(huart, CAN_MC_GetSpeed(), CAN_DATA_LEN_RX * sizeof(uint8_t)); //wysłanie danych przez UART
 	HAL_UART_Receive_DMA(huart, DataUART, CAN_DATA_LEN_TX); // ponowne włączenie nasłuchiwania na przerwania, byc może niekonieczne
 }
 
@@ -137,18 +137,18 @@ int main(void)
 //  TIM16->CNT=0;
 
   // inicjalizacja biblioteki BamocarControlBoard
-  BCB_Init(&hcan);
-  BCB_Connect(&hcan);
+  CAN_MC_Init(&hcan);
+  CAN_MC_Connect(&hcan);
 //  HAL_Delay(1);
-//  BCB_TorqueCommand(&hcan, 0x01, 0xf4);
-//  BCB_SpeedCommand(&hcan, 0x01, 0xf4);
+//  CAN_MC_TorqueCommand(&hcan, 0x01, 0xf4);
+//  CAN_MC_SpeedCommand(&hcan, 0x01, 0xf4);
 //  HAL_Delay(10000);
-  BCB_CyclicDataEnable(&hcan);
+  CAN_MC_CyclicDataEnable(&hcan);
   HAL_Delay(10000);
-  BCB_CyclicDataDisable(&hcan);
+  CAN_MC_CyclicDataDisable(&hcan);
 //  HAL_Delay(1);
-//  BCB_StopCommand(&hcan);
-  BCB_Disconnect(&hcan);
+//  CAN_MC_StopCommand(&hcan);
+  CAN_MC_Disconnect(&hcan);
 
 //  HAL_UART_Receive_DMA(&huart2, DataUART, CAN_DATA_LEN_TX); //rozpoczęcie nasłuchiwania na dane z UARTa
 

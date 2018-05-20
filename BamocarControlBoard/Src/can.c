@@ -63,7 +63,7 @@ void MX_CAN_Init(void)
   hcan.Init.AWUM = DISABLE;
   hcan.Init.NART = DISABLE;
   hcan.Init.RFLM = DISABLE;
-  hcan.Init.TXFP = DISABLE;
+  hcan.Init.TXFP = ENABLE;
   if (HAL_CAN_Init(&hcan) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
