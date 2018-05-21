@@ -50,6 +50,7 @@ CanRxMsgTypeDef RxMessage; //structure for received fram
 CanRxMsgTypeDef RxMessage2; //for second queue
 CAN_FilterConfTypeDef RxFilter; //structure for filter
 fifo TxBuffer; //buffer for send frames
+//CanRxMsgTypeDef* FrameBuffer;
 
 static struct __CAN_MC_Data{
 	uint32_t Status;

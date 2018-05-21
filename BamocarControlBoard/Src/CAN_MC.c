@@ -49,7 +49,7 @@ void CAN_MC_ReceiveCallback(CAN_HandleTypeDef *hpcan){
 
 void CAN_MC_Init(CAN_HandleTypeDef *hpcan){
 	// initialize buffer for transmit frames
-	fifo_init(&TxBuffer, 8);
+	fifo_init(&TxBuffer);
 
 	// turn on CAN interrupts for queues 0 and 1
 	__HAL_CAN_ENABLE_IT(hpcan, CAN_IT_FMP0);
