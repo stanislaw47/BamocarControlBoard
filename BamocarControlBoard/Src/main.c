@@ -37,7 +37,6 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-#include <CAN_MC.h>
 #include "main.h"
 #include "stm32f3xx_hal.h"
 #include "can.h"
@@ -48,6 +47,7 @@
 
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include "CAN_MC.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -147,7 +147,7 @@ int main(void)
 //  CAN_MC_SpeedCommand(&hcan, 0x01, 0xf4);
 //  HAL_Delay(10000);
   CAN_MC_CyclicDataEnable(&hcan);
-  HAL_Delay(10000);
+  HAL_Delay(300);
   CAN_MC_CyclicDataDisable(&hcan);
 //  HAL_Delay(1);
 //  CAN_MC_StopCommand(&hcan);
