@@ -22,22 +22,16 @@ int8_t fifo_push(fifo* f, const CanTxMsgTypeDef* item){
 	return 0;
 }
 
-void fifo_pop(fifo* f){
-	if(fifo_empty(f)){ //see if any data is available
-		f->tail++;  //increment the tail
-		if( f->tail == f->size )  //check for wrap-around
-			f->tail = 0;
-	}
-}
-
-CanTxMsgTypeDef* fifo_read(fifo* f){
+CanTxMsgTypeDef* fifo_pop(fifo* f){
 	CanTxMsgTypeDef* p;
 	if(fifo_empty(f)){ //see if any data is available
 		*p = f->buf[f->tail];  //grab a byte from the buffer
+		f->tail++;  //increment the tail
+		if( f->tail == f->size )  //check for wrap-around
+			f->tail = 0;
 		return p;
 	}
-	else
-		return NULL;
+	else return NULL;
 }
 
 uint8_t fifo_full(fifo* f){
