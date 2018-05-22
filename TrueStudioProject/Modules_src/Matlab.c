@@ -14,16 +14,16 @@ void Matlab_Init(void)
 
 void Matlab_Step(void)
 {
-	GetAPPS1_Data(&rtU.APPS1);
-	GetAPPS2_Data(&rtU.APPS2);
-	GetBSE_Data(&rtU.BrakeEncoder);
-	rtU.RFE=GetRFE();
-	rtU.START=GetStartButton();
+	//GetAPPS1_Data(&rtU.APPS1);
+	//GetAPPS2_Data(&rtU.APPS2);
+	//GetBSE_Data(&rtU.BrakeEncoder);
+	//rtU.RFE=GetRFE();
+	//rtU.START=GetStartButton();
 
 	MotorControllerModule_step();
 
-	CAN_MC_TorqueCommand(rtY.BamocarTorqueLimit);
-	CAN_MC_CurrentLimitCommand(rtY.BamocarTorqueOut_CAN);
-	WritePrecharge(rtY.PRECH);
-	WriteRDY(rtY.RDY);
+	//CAN_MC_TorqueCommand(rtY.BamocarTorqueLimit);
+	//CAN_MC_CurrentLimitCommand(rtY.BamocarTorqueOut_CAN);
+	//WritePrecharge(rtY.PRECH);
+	//WriteRDY(rtY.RDY);
 };

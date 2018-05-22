@@ -19,7 +19,7 @@ void CAN_MC_Init(void){
 	 * CAN_MC_TxBuffer initialisation
 	 */
 	uint8_t index;
-	for(index=0;index<RxBufferLength;index++)
+	for(index=0;index<TxBufferLength;index++)
 	{
 		CAN_MC_TxBuffer.Buffer[index].DLC=CAN_DATA_LEN_TX;
 		CAN_MC_TxBuffer.Buffer[index].StdId=CAN_ID_TX;
@@ -104,7 +104,7 @@ void CAN_MC_CurrentLimitCommand(uint16_t DataToSend)
 void CAN_MC_TransmitCallback(void)
 {
 	uint8_t index=0;
-	for(index=0;index<RxBufferLength;index++)
+	for(index=0;index<TxBufferLength;index++)
 	if(READ_BIT(CAN_MC_TxBuffer.Status,1<<index))
 	{
 		hcan.pTxMsg=&(CAN_MC_TxBuffer.Buffer[index]);
@@ -123,12 +123,12 @@ void CAN_MC_ReceiveCallback(void)
 			{
 				CAN_MC_InDataLocked.Data[RX_VDC] = hcan.pRxMsg->Data[1];
 				CAN_MC_InDataLocked.Data[RX_VDC] |= hcan.pRxMsg->Data[1] << 8;
-				SET_BIT(CAN_MC_InDataLocked.Status,RX_VDC);
+				SET_BIT(CAN_MC_InDataLocked.Status,1<<RX_VDC);
 			}
 			else
 			{
 				CAN_MC_InData.Data[RX_VDC] = hcan.pRxMsg->Data[1];
-				CAN_MC_InData.Data[RX_VDC] |= hcan.pRxMsg->Data[1] << 8;
+				CAN_MC_InData.Data[RX_VDC] |= hcan.pRxMsg->Data[2] << 8;
 			}
 			break;
 	}

@@ -250,7 +250,6 @@ void CAN_IRQ_Entry(void const * argument)
   /* USER CODE BEGIN CAN_IRQ_Entry */
 	CAN_MC_Init();
 	CAN_MC_CyclicDataEnable();
-	CAN_MC_TorqueCommand(500);
   /* Infinite loop */
   for(;;)
   {
@@ -324,16 +323,18 @@ void TB_CAN_Entry(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1000);
+    osDelay(2000);
     CAN_MC_TorqueCommand(500);
-    Tx.DLC=6;
+    osDelay(2000);
+    CAN_MC_TorqueCommand(0);
+    /*Tx.DLC=6;
     Tx.IDE=CAN_ID_STD;
     Tx.StdId=CAN_ID_RX;
     Tx.Data[0]=REG_BUS_DC;
     Tx.Data[1]=1;
     Tx.Data[2]=2;
     hcan.pTxMsg=&Tx;
-    HAL_CAN_Transmit_IT(&hcan);
+    HAL_CAN_Transmit_IT(&hcan);*/
   }
   /* USER CODE END TB_CAN_Entry */
 }

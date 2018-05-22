@@ -63,7 +63,7 @@ static uint8_t CAN_MC_Locked;		//Locking object
 
 static struct __CAN_MC_TxBuffer
 {
-	CanTxMsgTypeDef Buffer[RxBufferLength];
+	CanTxMsgTypeDef Buffer[TxBufferLength];
 	uint16_t Status;
 
 } CAN_MC_TxBuffer;
