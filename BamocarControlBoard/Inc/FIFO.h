@@ -5,7 +5,7 @@
 
 #include "can.h"
 
-#define FIFO_LENGTH 8 //max length of fifo queue
+#define FIFO_LENGTH 8 //length of fifo queue
 
 typedef struct{
 	CanTxMsgTypeDef buf[FIFO_LENGTH];

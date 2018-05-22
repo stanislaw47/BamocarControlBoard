@@ -5,7 +5,6 @@ void fifo_init(fifo* f){
      f->head = 0;
      f->tail = 0;
      f->size = FIFO_LENGTH;
-//     f->buf = CanTxMsgTypeDef buf[f->size];
 }
 
 uint8_t fifo_push(fifo* f, const CanTxMsgTypeDef* item){

@@ -46,7 +46,6 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include <string.h>
 #include "CAN_MC.h"
 /* USER CODE END Includes */
 
@@ -83,9 +82,13 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM16){
 		if(!fifo_empty(&TxBuffer) && !READ_BIT(CAN_MC_Status, 1<<CAN_TX_ERROR)){
+			fifo_pop(&TxBuffer, hcan.pTxMsg);
 			if(HAL_CAN_Transmit_IT(&hcan) != HAL_OK)
 				SET_BIT(CAN_MC_Status, 1<<CAN_TX_ERROR);
 		}
+		HAL_TIM_Base_Stop_IT(htim);
+		TIM16->CNT=0;
+		HAL_TIM_Base_Start_IT(htim);
 	}
 }
 
@@ -134,23 +137,29 @@ int main(void)
   MX_USART2_UART_Init();
   MX_CAN_Init();
   /* USER CODE BEGIN 2 */
-  //pierwsze uruchomienie timera, konieczne ze względu na błąd w bibliotece HAL
-//  HAL_TIM_Base_Start_IT(&htim16); //tutaj wykonujemy start, stop i wyzerowanie timera, żeby wyeliminowac błąd, w którym
-//  HAL_TIM_Base_Stop_IT(&htim16);  // pierwsze przerwanie nie działało poprawnie
-//  TIM16->CNT=0;
 
-  // inicjalizacja biblioteki BamocarControlBoard
+  // inicjalizacja biblioteki CAN_MC
   CAN_MC_Init(&hcan);
   CAN_MC_Connect(&hcan);
-//  HAL_Delay(1);
-//  CAN_MC_TorqueCommand(&hcan, 0x01, 0xf4);
-//  CAN_MC_SpeedCommand(&hcan, 0x01, 0xf4);
-//  HAL_Delay(10000);
-  CAN_MC_CyclicDataEnable(&hcan);
-  HAL_Delay(300);
-  CAN_MC_CyclicDataDisable(&hcan);
-//  HAL_Delay(1);
-//  CAN_MC_StopCommand(&hcan);
+
+  //pierwsze uruchomienie timera, konieczne ze względu na błąd w bibliotece HAL
+  HAL_TIM_Base_Start_IT(&htim16); //tutaj wykonujemy start, stop i wyzerowanie timera, żeby wyeliminowac błąd, w którym
+  HAL_TIM_Base_Stop_IT(&htim16);  // pierwsze przerwanie nie działało poprawnie
+  TIM16->CNT=0;
+  HAL_TIM_Base_Start_IT(&htim16);
+
+  //Test bench 1
+  HAL_Delay(500);
+  CAN_MC_TorqueCommand(&hcan, 0x01f4);
+//  CAN_MC_SpeedCommand(&hcan, 0x01f4);
+  HAL_Delay(5000);
+  CAN_MC_StopCommand(&hcan);
+
+  // Test bench 2
+//  CAN_MC_CyclicDataEnable(&hcan);
+//  HAL_Delay(300);
+//  CAN_MC_CyclicDataDisable(&hcan);
+
   CAN_MC_Disconnect(&hcan);
 
 //  HAL_UART_Receive_DMA(&huart2, DataUART, CAN_DATA_LEN_TX); //rozpoczęcie nasłuchiwania na dane z UARTa
