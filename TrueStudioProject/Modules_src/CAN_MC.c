@@ -44,6 +44,14 @@ void CAN_MC_ReceiveCallback(CAN_HandleTypeDef *hpcan){
 	}
 }
 
+void CAN_MC_TimerCAllback(CAN_HandleTypeDef *hpcan){
+	if(!fifo_empty(&TxBuffer) && !READ_BIT(CAN_MC_Status, 1<<CAN_TX_ERROR)){
+		fifo_pop(&TxBuffer, *hpcan->pTxMsg);
+		if(HAL_CAN_Transmit_IT(hpcan) != HAL_OK)
+			SET_BIT(CAN_MC_Status, 1<<CAN_TX_ERROR);
+	}
+}
+
 void CAN_MC_Init(CAN_HandleTypeDef *hpcan){
 	// initialize buffer for transmit frames
 	fifo_init(&TxBuffer);

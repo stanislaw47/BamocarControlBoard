@@ -50,7 +50,6 @@ CanRxMsgTypeDef RxMessage; //structure for received fram
 CanRxMsgTypeDef RxMessage2; //for second queue
 CAN_FilterConfTypeDef RxFilter; //structure for filter
 fifo TxBuffer; //buffer for send frames
-//CanRxMsgTypeDef* FrameBuffer;
 
 static struct __CAN_MC_Data{
 	uint32_t Status;
@@ -63,13 +62,14 @@ static struct __CAN_MC_Data{
 	uint32_t Others;
 }CAN_MC_Data, CAN_MC_DataLocked; //structure for data from Bamocar
 
-static uint8_t CAN_MC_Status; //
+static uint8_t CAN_MC_Status; //variable to report status of this library functions
 
 void CAN_MC_Init(CAN_HandleTypeDef *hpcan); //initialization fo frames and filters
 void CAN_MC_Connect(CAN_HandleTypeDef *hpcan); //checks whether device is ready and FRG set
 void CAN_MC_Disconnect(CAN_HandleTypeDef *hpcan); //turns drive off
 void CAN_MC_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d3); //main sending function
 void CAN_MC_ReceiveCallback(CAN_HandleTypeDef *hpcan); //frame receive callback
+void CAN_MC_TimerCAllback(CAN_HandleTypeDef *hpcan); //timer period elapsed callback, used to send frames. Suitable frequency should be 1 kHz.
 void CAN_MC_CyclicDataEnable(CAN_HandleTypeDef *hpcan); //turns on cyclic data sending by Bamocar
 void CAN_MC_CyclicDataDisable(CAN_HandleTypeDef *hpcan);//turns off cyclic data sending by Bamcoar
 void CAN_MC_Lock(); //handles Locked flag, starts reading data
