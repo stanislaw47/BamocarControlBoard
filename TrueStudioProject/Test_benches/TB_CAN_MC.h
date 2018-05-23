@@ -15,8 +15,8 @@ void TestBench1(void){
 	CAN_MC_Connect(&hcan);
 
 	//start a timer
-	CAN_MC_TorqueCommand(&hcan, 0x01f4);
-	//  CAN_MC_SpeedCommand(&hcan, 0x01f4);
+	CAN_MC_TorqueCommand(&hcan, 500);
+	//  CAN_MC_SpeedCommand(&hcan, 500);
 	HAL_Delay(5000);
 	CAN_MC_StopCommand(&hcan);
 
