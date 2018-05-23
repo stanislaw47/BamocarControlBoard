@@ -254,7 +254,7 @@ void CAN_IRQ_Entry(void const * argument)
   for(;;)
   {
     osSemaphoreWait(CANHandle,osWaitForever);
-    CAN_MC_TransmitCallback();
+//    CAN_MC_TransmitCallback();
   }
   /* USER CODE END CAN_IRQ_Entry */
 }

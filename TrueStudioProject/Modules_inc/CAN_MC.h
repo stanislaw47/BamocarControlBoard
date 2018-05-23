@@ -64,14 +64,14 @@ static struct __CAN_MC_Data{
 
 static uint8_t CAN_MC_Status; //variable to report status of this library functions
 
-void CAN_MC_Init(CAN_HandleTypeDef *hpcan); //initialization fo frames and filters
-void CAN_MC_Connect(CAN_HandleTypeDef *hpcan); //checks whether device is ready and FRG set
-void CAN_MC_Disconnect(CAN_HandleTypeDef *hpcan); //turns drive off
-void CAN_MC_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d3); //main sending function
-void CAN_MC_ReceiveCallback(CAN_HandleTypeDef *hpcan); //frame receive callback
-void CAN_MC_TimerCAllback(CAN_HandleTypeDef *hpcan); //timer period elapsed callback, used to send frames. Suitable frequency should be 1 kHz.
-void CAN_MC_CyclicDataEnable(CAN_HandleTypeDef *hpcan); //turns on cyclic data sending by Bamocar
-void CAN_MC_CyclicDataDisable(CAN_HandleTypeDef *hpcan);//turns off cyclic data sending by Bamcoar
+void CAN_MC_Init(void); //initialization fo frames and filters
+void CAN_MC_Connect(void); //checks whether device is ready and FRG set
+void CAN_MC_Disconnect(void); //turns drive off
+void CAN_MC_Transmit(uint8_t d1, uint8_t d2, uint8_t d3); //main sending function
+void CAN_MC_ReceiveCallback(void); //frame receive callback
+void CAN_MC_TimerCAllback(void); //timer period elapsed callback, used to send frames. Suitable frequency should be 1 kHz.
+void CAN_MC_CyclicDataEnable(void); //turns on cyclic data sending by Bamocar
+void CAN_MC_CyclicDataDisable(void);//turns off cyclic data sending by Bamcoar
 void CAN_MC_Lock(); //handles Locked flag, starts reading data
 void CAN_MC_Unlock(); //handles Locked flag, finishes reading data
 uint16_t CAN_MC_GetSpeed(); //read value of speed
@@ -80,8 +80,8 @@ uint16_t CAN_MC_Current(); //read value of current
 uint16_t CAN_MC_GetReady(); //check whether device is ready
 uint16_t CAN_MC_GetFRG(); //read value of FRG
 uint16_t CAN_MC_GetBusDC(); //read value of bus voltage
-void CAN_MC_SpeedCommand(CAN_HandleTypeDef *hpcan, uint16_t data); //set speed
-void CAN_MC_TorqueCommand(CAN_HandleTypeDef *hpcan, uint16_t data); //set torque
-void CAN_MC_StopCommand(CAN_HandleTypeDef *hpcan); //stop motor
+void CAN_MC_SpeedCommand(uint16_t data); //set speed
+void CAN_MC_TorqueCommand(uint16_t data); //set torque
+void CAN_MC_StopCommand(void); //stop motor
 
 #endif //CAN_MC_
