@@ -90,7 +90,7 @@ void CAN_MC_Unlock(void); 			//function complementary to CAN_MC_Lock()
  * Functions setting flags for CAN frames transmitting
  */
 void CAN_MC_CyclicDataEnable(void);
-void CAN_MC_TorqueCommand(uint16_t Torque);
+void CAN_MC_TorqueCommand(int16_t Torque);
 void CAN_MC_CurrentLimitCommand(uint16_t CurrentLimit);
 //for future implementation
 void CAN_MC_Disconnect(void);

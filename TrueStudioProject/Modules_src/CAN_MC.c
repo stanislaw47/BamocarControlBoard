@@ -3,14 +3,6 @@
 #include "CAN_MC.h"
 
 
-void BCB_Transmit(CAN_HandleTypeDef *hpcan, uint8_t d1, uint8_t d2, uint8_t d3){
-	hpcan->pTxMsg->Data[0] = d1;
-	hpcan->pTxMsg->Data[1] = d2;
-	hpcan->pTxMsg->Data[2] = d3;
-	while(HAL_CAN_Transmit_IT(hpcan) != HAL_OK) //wysłanie ramki przez CANa
-		;
-}
-
 
 
 void CAN_MC_Init(void){
@@ -86,7 +78,7 @@ void CAN_MC_CyclicDataEnable(void)
 {
 	SET_BIT(CAN_MC_TxBuffer.Status,1<<TX_VDC);
 }
-void CAN_MC_TorqueCommand(uint16_t DataToSend)
+void CAN_MC_TorqueCommand(int16_t DataToSend)
 {
 	CAN_MC_TxBuffer.Buffer[TX_TORQUE].Data[1] = DataToSend % 256;
 	CAN_MC_TxBuffer.Buffer[TX_TORQUE].Data[2] = DataToSend >> 8 % 256;

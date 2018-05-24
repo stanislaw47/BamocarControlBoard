@@ -327,6 +327,10 @@ void TB_CAN_Entry(void const * argument)
     CAN_MC_TorqueCommand(500);
     osDelay(2000);
     CAN_MC_TorqueCommand(0);
+    osDelay(2000);
+    CAN_MC_TorqueCommand(500);
+    osDelay(2000);
+	CAN_MC_TorqueCommand(-500);
     /*Tx.DLC=6;
     Tx.IDE=CAN_ID_STD;
     Tx.StdId=CAN_ID_RX;
