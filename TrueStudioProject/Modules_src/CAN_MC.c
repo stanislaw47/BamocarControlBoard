@@ -24,7 +24,7 @@ void CAN_MC_ReceiveCallback(void){
 			CAN_MC_Data.Status = (CAN_MC_Data.Status << 8) + hcan.pRxMsg->Data[0];
 			break;}
 		case TORQUE:
-			CAN_MC_Data.Torque = ((uint16_t)(hcan.pRxMsg->Data[1]) << 8) | hcan.pRxMsg->Data[2];
+			CAN_MC_Data.Torque = ((int16_t)(hcan.pRxMsg->Data[1]) << 8) | hcan.pRxMsg->Data[2];
 			break;
 		case READY:
 			CAN_MC_Data.Ready = ((uint16_t)(hcan.pRxMsg->Data[1]) << 8) | hcan.pRxMsg->Data[2];
@@ -145,7 +145,7 @@ uint16_t CAN_MC_GetFRG(){
 	return CAN_MC_Data.Frg;
 }
 
-uint16_t CAN_MC_GetTorque(){
+int16_t CAN_MC_GetTorque(){
 	return CAN_MC_Data.Torque;
 }
 

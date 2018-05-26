@@ -55,7 +55,7 @@ static struct __CAN_MC_Data{
 	uint32_t Status;
 	uint16_t Speed;
 	uint16_t Current;
-	uint16_t Torque;
+	int16_t Torque;
 	uint16_t Ready;
 	uint16_t Frg;
 	uint16_t BusDC;
@@ -75,13 +75,14 @@ void CAN_MC_CyclicDataDisable(void);//turns off cyclic data sending by Bamcoar
 void CAN_MC_Lock(); //handles Locked flag, starts reading data
 void CAN_MC_Unlock(); //handles Locked flag, finishes reading data
 uint16_t CAN_MC_GetSpeed(); //read value of speed
-uint16_t CAN_MC_GetTorque(); //read value of torque
-uint16_t CAN_MC_Current(); //read value of current
+int16_t CAN_MC_GetTorque(); //read value of torque
+uint16_t CAN_MC_GetCurrent(); //read value of current
 uint16_t CAN_MC_GetReady(); //check whether device is ready
 uint16_t CAN_MC_GetFRG(); //read value of FRG
 uint16_t CAN_MC_GetBusDC(); //read value of bus voltage
 void CAN_MC_SpeedCommand(uint16_t data); //set speed
 void CAN_MC_TorqueCommand(uint16_t data); //set torque
+void CAN_MC_CurrentLimitCommand(uint16_t data); //set current limit
 void CAN_MC_StopCommand(void); //stop motor
 
 #endif //CAN_MC_
