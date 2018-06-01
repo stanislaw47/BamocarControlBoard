@@ -323,14 +323,20 @@ void TB_CAN_Entry(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(2000);
+    osDelay(1000);
     CAN_MC_TorqueCommand(500);
-    osDelay(2000);
+    WriteLED_Green(1);
+    osDelay(1000);
     CAN_MC_TorqueCommand(0);
-    osDelay(2000);
+    WriteLED_Green(0);
+    WriteLED_Red(1);
+    osDelay(1000);
     CAN_MC_TorqueCommand(500);
-    osDelay(2000);
+    WriteLED_Red(0);
+    WriteLED_Yellow(1);
+    osDelay(1000);
 	CAN_MC_TorqueCommand(-500);
+	WriteLED_Yellow(0);
     /*Tx.DLC=6;
     Tx.IDE=CAN_ID_STD;
     Tx.StdId=CAN_ID_RX;
