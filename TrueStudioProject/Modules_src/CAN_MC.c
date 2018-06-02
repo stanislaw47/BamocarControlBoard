@@ -56,10 +56,6 @@ void CAN_MC_Init(void){
 	// initialize buffer for transmit frames
 	fifo_init(&TxBuffer);
 
-	// turn on CAN interrupts for queues 0 and 1
-	__HAL_CAN_ENABLE_IT(&hcan, CAN_IT_FMP0);
-	__HAL_CAN_ENABLE_IT(&hcan, CAN_IT_FMP1);
-
 	//configuration of transmit frame
 	TxMessage.DLC = CAN_DATA_LEN_TX;
 	TxMessage.RTR = CAN_RTR_DATA;
