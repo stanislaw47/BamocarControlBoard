@@ -14,6 +14,6 @@
 #include "GPIO_MC.h"
 
 void Matlab_Init(void);
-void Matlab_Step(void);
+void Matlab_Step(void)  __attribute__((section(".ccmram")));
 
 #endif /* MATLAB_H_ */

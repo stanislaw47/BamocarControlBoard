@@ -58,8 +58,8 @@ void ADC2_MC_Init(void);
 void GetAPPS1_Data (uint16_t * DataPtr);
 void GetAPPS2_Data (uint16_t * DataPtr);
 void GetBSE_Data (uint16_t * DataPtr);
-void ADC1_IRQ_Handler(void);
-void ADC2_IRQ_Handler(void);
+void ADC1_IRQ_Handler(void) __attribute__((section(".ccmram")));
+void ADC2_IRQ_Handler(void) __attribute__((section(".ccmram")));
 uint16_t ADC_GetStatus(void);
 
 #endif /* MODULES_ADC_MC_H_ */

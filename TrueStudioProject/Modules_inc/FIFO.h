@@ -19,16 +19,16 @@ typedef struct{
 void fifo_init(fifo* f);
 
 //Reads one element from fifo and deletes it
-void fifo_pop(fifo* f, CanTxMsgTypeDef* p);
+void fifo_pop(fifo* f, CanTxMsgTypeDef* p) __attribute__((section(".ccmram")));
 
 //This writes one item to the FIFO
 //If the head runs in to the tail, item is discarded
-uint8_t fifo_push(fifo* f, const CanTxMsgTypeDef* item);
+uint8_t fifo_push(fifo* f, const CanTxMsgTypeDef* item) __attribute__((section(".ccmram")));
 
 //Checks whether fifo is full
-uint8_t fifo_full(fifo* f);
+uint8_t fifo_full(fifo* f) __attribute__((section(".ccmram")));
 
 //Checks whether fifo is empty
-uint8_t fifo_empty(fifo* f);
+uint8_t fifo_empty(fifo* f) __attribute__((section(".ccmram")));
 
 #endif //FIFO_

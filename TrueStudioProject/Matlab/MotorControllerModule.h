@@ -189,7 +189,7 @@ extern ExtY rtY;
 
 /* Model entry point functions */
 extern void MotorControllerModule_initialize(void);
-extern void MotorControllerModule_step(void);
+extern void MotorControllerModule_step(void)  __attribute__((section(".ccmram")));
 
 /* Real-time Model object */
 extern RT_MODEL *const rtM;

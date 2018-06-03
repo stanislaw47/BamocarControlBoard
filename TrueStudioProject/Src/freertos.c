@@ -55,6 +55,7 @@
 #include "ADC_MC.h"
 #include "Matlab.h"
 #include "CAN_MC.h"
+#include "MPU_6050_MC.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -79,6 +80,9 @@ osStaticThreadDef_t CAN_Rx_ControlBlock;
 osThreadId TB_CANHandle;
 uint32_t TB_CAN_7Buffer[ 256 ];
 osStaticThreadDef_t TB_CAN_ControlBlock;
+osThreadId MPUHandle;
+uint32_t MPU_Buffer[ 256 ];
+osStaticThreadDef_t MPU_ControlBlock;
 osTimerId MatlabTimerHandle;
 osStaticTimerDef_t MatlabTimerControlBlock;
 osSemaphoreId ADC1Handle;
@@ -91,6 +95,8 @@ osSemaphoreId Matlab_SEMHandle;
 osStaticSemaphoreDef_t Matlab_ControlBlock;
 osSemaphoreId CAN_RXHandle;
 osStaticSemaphoreDef_t CAN_RXControlBlock;
+osSemaphoreId MPU_SEMHandle;
+osStaticSemaphoreDef_t MPU_SEM_ControlBlock;
 
 /* USER CODE BEGIN Variables */
 
@@ -104,6 +110,7 @@ void ADC1_Entry(void const * argument);
 void ADC2_Entry(void const * argument);
 void CAN_IRQ_Rx_Entry(void const * argument);
 void TB_CAN_Entry(void const * argument);
+void MPU_Entry(void const * argument);
 void MatlabTimerCallback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -179,6 +186,10 @@ void MX_FREERTOS_Init(void) {
   osSemaphoreStaticDef(CAN_RX, &CAN_RXControlBlock);
   CAN_RXHandle = osSemaphoreCreate(osSemaphore(CAN_RX), 1);
 
+  /* definition and creation of MPU_SEM */
+  osSemaphoreStaticDef(MPU_SEM, &MPU_SEM_ControlBlock);
+  MPU_SEMHandle = osSemaphoreCreate(osSemaphore(MPU_SEM), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -222,6 +233,10 @@ void MX_FREERTOS_Init(void) {
   osThreadStaticDef(TB_CAN, TB_CAN_Entry, osPriorityLow, 0, 256, TB_CAN_7Buffer, &TB_CAN_ControlBlock);
   TB_CANHandle = osThreadCreate(osThread(TB_CAN), NULL);
 
+  /* definition and creation of MPU */
+  osThreadStaticDef(MPU, MPU_Entry, osPriorityAboveNormal, 0, 256, MPU_Buffer, &MPU_ControlBlock);
+  MPUHandle = osThreadCreate(osThread(MPU), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -249,12 +264,13 @@ void CAN_IRQ_Entry(void const * argument)
 {
   /* USER CODE BEGIN CAN_IRQ_Entry */
 	CAN_MC_Init();
+	CAN_MC_Connect();
 	CAN_MC_CyclicDataEnable();
   /* Infinite loop */
   for(;;)
   {
     osSemaphoreWait(CANHandle,osWaitForever);
-//    CAN_MC_TransmitCallback();
+    CAN_MC_TimerCAllback();
   }
   /* USER CODE END CAN_IRQ_Entry */
 }
@@ -339,12 +355,27 @@ void TB_CAN_Entry(void const * argument)
   /* USER CODE END TB_CAN_Entry */
 }
 
+/* MPU_Entry function */
+void MPU_Entry(void const * argument)
+{
+  /* USER CODE BEGIN MPU_Entry */
+	MPU_6050_Init();
+  /* Infinite loop */
+  for(;;)
+  {
+    osSemaphoreWait(MPU_SEMHandle,osWaitForever);
+    MPU_6050_GetData();
+  }
+  /* USER CODE END MPU_Entry */
+}
+
 /* MatlabTimerCallback function */
 void MatlabTimerCallback(void const * argument)
 {
   /* USER CODE BEGIN MatlabTimerCallback */
   osSemaphoreRelease(Matlab_SEMHandle);
   osSemaphoreRelease(CANHandle);
+  osSemaphoreRelease(MPU_SEMHandle);
   /* USER CODE END MatlabTimerCallback */
 }
 

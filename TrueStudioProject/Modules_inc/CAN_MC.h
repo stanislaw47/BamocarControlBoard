@@ -63,13 +63,12 @@ static struct __CAN_MC_Data{
 }CAN_MC_Data, CAN_MC_DataLocked; //structure for data from Bamocar
 
 static uint8_t CAN_MC_Status; //variable to report status of this library functions
-
 void CAN_MC_Init(void); //initialization fo frames and filters
 void CAN_MC_Connect(void); //checks whether device is ready and FRG set
 void CAN_MC_Disconnect(void); //turns drive off
 void CAN_MC_Transmit(uint8_t d1, uint8_t d2, uint8_t d3); //main sending function
-void CAN_MC_ReceiveCallback(void); //frame receive callback
-void CAN_MC_TimerCAllback(void); //timer period elapsed callback, used to send frames. Suitable frequency should be 1 kHz.
+void CAN_MC_ReceiveCallback(void) __attribute__((section(".ccmram")));//frame receive callback
+void CAN_MC_TimerCAllback(void) __attribute__((section(".ccmram")));//timer period elapsed callback, used to send frames. Suitable frequency should be 1 kHz.
 void CAN_MC_CyclicDataEnable(void); //turns on cyclic data sending by Bamocar
 void CAN_MC_CyclicDataDisable(void);//turns off cyclic data sending by Bamcoar
 void CAN_MC_Lock(); //handles Locked flag, starts reading data
