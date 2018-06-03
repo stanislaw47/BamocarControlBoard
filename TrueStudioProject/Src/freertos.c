@@ -249,6 +249,7 @@ void CAN_IRQ_Entry(void const * argument)
 {
   /* USER CODE BEGIN CAN_IRQ_Entry */
 	CAN_MC_Init();
+	CAN_MC_Connect();
 	CAN_MC_CyclicDataEnable();
   /* Infinite loop */
   for(;;)
