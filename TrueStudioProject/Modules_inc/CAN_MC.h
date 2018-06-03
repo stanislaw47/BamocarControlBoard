@@ -15,6 +15,7 @@
 #define CAN_DATA_LEN_RX 	6 		//number fo bytes received from Bamcoar, fixed via NDrive
 #define CAN_ID_TX 			0x201 	//send frame ID, used in filters
 #define CAN_ID_RX 			0x181 	//received frame ID, used in filters
+#define CAN_ID_TX_STATUS	0x100	//ID to which status of board will be send
 
 //registers configuration parameters
 #define DATA_FREQ 			0x32 	//cyclic data frequency, in miliseconds [50]
@@ -74,6 +75,7 @@ void CAN_MC_CyclicDataEnable(void); //turns on cyclic data sending by Bamocar
 void CAN_MC_CyclicDataDisable(void);//turns off cyclic data sending by Bamcoar
 void CAN_MC_Lock(); //handles Locked flag, starts reading data
 void CAN_MC_Unlock(); //handles Locked flag, finishes reading data
+void CAN_MC_SendStatus(uint32_t ErrorCode); //sends status information to another device
 uint16_t CAN_MC_GetSpeed(); //read value of speed
 int16_t CAN_MC_GetTorque(); //read value of torque
 uint16_t CAN_MC_GetCurrent(); //read value of current

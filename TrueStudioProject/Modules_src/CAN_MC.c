@@ -126,6 +126,29 @@ void CAN_MC_Unlock(){
 	CLEAR_BIT(CAN_MC_Status, 1<<LOCKED);
 }
 
+void CAN_MC_SendStatus(uint32_t ErrorCode){
+	CanTxMsgTypeDef Frame = *hcan.pTxMsg;
+	uint32_t hal_err = HAL_CAN_GetError(&hcan);
+	Frame.DLC = 8;
+	Frame.StdId = CAN_ID_TX_STATUS;
+
+	//errors from HAL_CAN driver
+	Frame.Data[0] = hal_err >> 24 % 256;
+	Frame.Data[1] = hal_err >> 16 % 256;
+	Frame.Data[2] = hal_err >> 8 % 256;
+	Frame.Data[3] = hal_err % 256;
+
+	//status of CAN_MC library
+	Frame.Data[4] = CAN_MC_Status;
+
+	//value of ErrorCode
+	Frame.Data[5] = ErrorCode % 256;
+	Frame.Data[6] = ErrorCode >> 8 % 256;
+	Frame.Data[7] = ErrorCode >> 16 % 256;
+
+	fifo_push(&TxBuffer, &Frame);
+}
+
 uint16_t CAN_MC_GetSpeed(){
 	return CAN_MC_Data.Speed;
 }
