@@ -44,7 +44,7 @@ void CAN_MC_ReceiveCallback(void){
 	}
 }
 
-void CAN_MC_TimerCAllback(void){
+void CAN_MC_TimerCallback(void){
 	if(!fifo_empty(&TxBuffer) && !READ_BIT(CAN_MC_Status, 1<<CAN_TX_ERROR)){
 		fifo_pop(&TxBuffer, hcan.pTxMsg);
 		if(HAL_CAN_Transmit_IT(&hcan) != HAL_OK)
