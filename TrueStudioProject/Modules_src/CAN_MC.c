@@ -94,9 +94,6 @@ void CAN_MC_Connect(void){
 	if(hcan.pRxMsg->Data[1] != 0x01 || hcan.pRxMsg->Data[2] != 0x00 || hcan.pRxMsg->Data[3] != 0x00)
 		SET_BIT(CAN_MC_Status, 1<<MC_FRG);
 
-	//lock drive
-//	CAN_MC_Transmit(hpcan, MODE, MOTOR_DISABLE, 0x00);
-
 	//enable drive
 	CAN_MC_Transmit(MODE, MOTOR_ENABLE, 0x00);
 }
