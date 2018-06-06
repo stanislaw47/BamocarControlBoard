@@ -80,7 +80,7 @@ uint16_t CAN_MC_GetReady(); //check whether device is ready
 uint16_t CAN_MC_GetFRG(); //read value of FRG
 uint16_t CAN_MC_GetBusDC(); //read value of bus voltage
 void CAN_MC_SpeedCommand(uint16_t data); //set speed
-void CAN_MC_TorqueCommand(uint16_t data); //set torque
+void CAN_MC_TorqueCommand(int16_t data); //set torque
 void CAN_MC_StopCommand(void); //stop motor
 
 #endif //CAN_MC_

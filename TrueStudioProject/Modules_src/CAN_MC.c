@@ -161,7 +161,7 @@ void CAN_MC_SpeedCommand(uint16_t data){
 	CAN_MC_Transmit(SET_SPEED, data % 256, data >> 8 % 256);
 }
 
-void CAN_MC_TorqueCommand(uint16_t data){
+void CAN_MC_TorqueCommand(int16_t data){
 	CAN_MC_Transmit(SET_TORQUE, data % 256, data >> 8 % 256);
 }
 
