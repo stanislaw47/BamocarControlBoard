@@ -5,17 +5,15 @@
  *
  * File: rtwtypes.h
  *
- * Code generated for Simulink model 'MotorControllerModule'.
+ * Code generated for Simulink model 'Motor'.
  *
- * Model version                  : 1.193
+ * Model version                  : 1.319
  * Simulink Coder version         : 8.13 (R2017b) 24-Jul-2017
- * C/C++ source code generated on : Tue Apr 10 10:17:04 2018
+ * C/C++ source code generated on : Thu Jun  7 16:26:38 2018
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex
- * Code generation objectives:
- *    1. Execution efficiency
- *    2. RAM efficiency
+ * Code generation objective: RAM efficiency
  * Validation result: Not run
  */
 

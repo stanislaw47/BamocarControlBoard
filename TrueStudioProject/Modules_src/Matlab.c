@@ -9,7 +9,7 @@
 
 void Matlab_Init(void)
 {
-	MotorControllerModule_initialize();
+	Motor_initialize();
 };
 
 void Matlab_Step(void)
@@ -20,7 +20,7 @@ void Matlab_Step(void)
 	//rtU.RFE=GetRFE();
 	//rtU.START=GetStartButton();
 
-	MotorControllerModule_step();
+	Motor_step();
 
 	//CAN_MC_TorqueCommand(rtY.BamocarTorqueLimit);
 	//CAN_MC_CurrentLimitCommand(rtY.BamocarTorqueOut_CAN);
