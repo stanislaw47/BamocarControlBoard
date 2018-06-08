@@ -270,7 +270,7 @@ void CAN_IRQ_Entry(void const * argument)
   for(;;)
   {
     osSemaphoreWait(CANHandle,osWaitForever);
-    CAN_MC_TimerCAllback();
+    CAN_MC_TimerCallback();
   }
   /* USER CODE END CAN_IRQ_Entry */
 }
