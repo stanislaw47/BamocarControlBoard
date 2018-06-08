@@ -69,7 +69,6 @@ void CAN_MC_Init(void); //initialization fo frames and filters
 void CAN_MC_Connect(void); //checks whether device is ready and FRG set
 void CAN_MC_Disconnect(void); //turns drive off
 void CAN_MC_Transmit(uint8_t d1, uint8_t d2, uint8_t d3); //main sending function
-void CAN_MC_TimerCAllback(void); //timer period elapsed callback, used to send frames. Suitable frequency should be 1 kHz.
 void CAN_MC_ReceiveCallback(void); //frame receive callback
 void CAN_MC_TimerCallback(void) __attribute__((section(".ccmram")));//timer period elapsed callback, used to send frames. Suitable frequency should be 1 kHz.
 void CAN_MC_CyclicDataEnable(void); //turns on cyclic data sending by Bamocar
@@ -84,7 +83,7 @@ uint16_t CAN_MC_GetReady(); //check whether device is ready
 uint16_t CAN_MC_GetFRG(); //read value of FRG
 uint16_t CAN_MC_GetBusDC(); //read value of bus voltage
 void CAN_MC_SpeedCommand(uint16_t data); //set speed
-void CAN_MC_TorqueCommand(uint16_t data); //set torque
+void CAN_MC_TorqueCommand(int16_t data); //set torque
 void CAN_MC_CurrentLimitCommand(uint16_t data); //set current limit
 void CAN_MC_StopCommand(void); //stop motor
 
