@@ -342,9 +342,11 @@ void TB_CAN_Entry(void const * argument)
     osDelay(1000);
     CAN_MC_TorqueCommand(1000);
     WriteLED_Green(0);
+    WritePrecharge(1);
     osDelay(1000);
     CAN_MC_TorqueCommand(-1000);
     WriteLED_Green(1);
+    WritePrecharge(0);
     /*Tx.DLC=6;
     Tx.IDE=CAN_ID_STD;
     Tx.StdId=CAN_ID_RX;
