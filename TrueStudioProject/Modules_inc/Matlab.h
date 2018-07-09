@@ -8,7 +8,7 @@
 #ifndef MATLAB_H_
 #define MATLAB_H_
 
-#include "Motor.h"
+#include "motor_simple.h"
 #include "ADC_MC.h"
 #include "CAN_MC.h"
 #include "GPIO_MC.h"

@@ -263,9 +263,11 @@ void StartDefaultTask(void const * argument)
 void CAN_IRQ_Entry(void const * argument)
 {
   /* USER CODE BEGIN CAN_IRQ_Entry */
+	osDelay(7000);
+	WriteLED_Red(1);
 	CAN_MC_Init();
-	CAN_MC_Connect();
-	CAN_MC_CyclicDataEnable();
+	//CAN_MC_Connect();
+	//CAN_MC_CyclicDataEnable();
   /* Infinite loop */
   for(;;)
   {
@@ -335,26 +337,21 @@ void CAN_IRQ_Rx_Entry(void const * argument)
 void TB_CAN_Entry(void const * argument)
 {
   /* USER CODE BEGIN TB_CAN_Entry */
-	CanTxMsgTypeDef Tx;
   /* Infinite loop */
   for(;;)
   {
     osDelay(1000);
-    CAN_MC_TorqueCommand(1000);
     WriteLED_Green(0);
-    WritePrecharge(1);
-    osDelay(1000);
-    CAN_MC_TorqueCommand(-1000);
-    WriteLED_Green(1);
     WritePrecharge(0);
-    /*Tx.DLC=6;
-    Tx.IDE=CAN_ID_STD;
-    Tx.StdId=CAN_ID_RX;
-    Tx.Data[0]=REG_BUS_DC;
-    Tx.Data[1]=1;
-    Tx.Data[2]=2;
-    hcan.pTxMsg=&Tx;
-    HAL_CAN_Transmit_IT(&hcan);*/
+    if(HAL_CAN_GetError(&hcan)!=0)
+    	WriteLED_Yellow(0);
+    else
+    	WriteLED_Yellow(1);
+    osDelay(1000);
+    WriteLED_Green(1);
+    WritePrecharge(1);
+
+
   }
   /* USER CODE END TB_CAN_Entry */
 }
