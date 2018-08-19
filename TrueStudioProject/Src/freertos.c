@@ -56,6 +56,7 @@
 #include "Matlab.h"
 #include "CAN_MC.h"
 #include "MPU_6050_MC.h"
+#include "dac.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -97,9 +98,12 @@ osSemaphoreId CAN_RXHandle;
 osStaticSemaphoreDef_t CAN_RXControlBlock;
 osSemaphoreId MPU_SEMHandle;
 osStaticSemaphoreDef_t MPU_SEM_ControlBlock;
+osSemaphoreId MatlabCanSyncHandle;
+osStaticSemaphoreDef_t MatCanControlBlock;
 
 /* USER CODE BEGIN Variables */
-
+//for tests
+uint8_t start;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -190,6 +194,10 @@ void MX_FREERTOS_Init(void) {
   osSemaphoreStaticDef(MPU_SEM, &MPU_SEM_ControlBlock);
   MPU_SEMHandle = osSemaphoreCreate(osSemaphore(MPU_SEM), 1);
 
+  /* definition and creation of MatlabCanSync */
+  osSemaphoreStaticDef(MatlabCanSync, &MatCanControlBlock);
+  MatlabCanSyncHandle = osSemaphoreCreate(osSemaphore(MatlabCanSync), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -210,7 +218,7 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of CAN_IRQ */
-  osThreadStaticDef(CAN_IRQ, CAN_IRQ_Entry, osPriorityHigh, 0, 1024, CAN_Buffer, &CAN_ControlBlock);
+  osThreadStaticDef(CAN_IRQ, CAN_IRQ_Entry, osPriorityAboveNormal, 0, 1024, CAN_Buffer, &CAN_ControlBlock);
   CAN_IRQHandle = osThreadCreate(osThread(CAN_IRQ), NULL);
 
   /* definition and creation of Matlab */
@@ -264,8 +272,9 @@ void CAN_IRQ_Entry(void const * argument)
 {
   /* USER CODE BEGIN CAN_IRQ_Entry */
 	CAN_MC_Init();
-	CAN_MC_Connect();
+	osDelay(3000);
 	CAN_MC_CyclicDataEnable();
+	osSemaphoreRelease(MatlabCanSyncHandle);
   /* Infinite loop */
   for(;;)
   {
@@ -279,13 +288,24 @@ void CAN_IRQ_Entry(void const * argument)
 void Matlab_Entry(void const * argument)
 {
   /* USER CODE BEGIN Matlab_Entry */
-	osSemaphoreWait(Matlab_SEMHandle,osWaitForever);
 	Matlab_Init();
+	osSemaphoreWait(MatlabCanSyncHandle,osWaitForever);
   /* Infinite loop */
   for(;;)
   {
 	  osSemaphoreWait(Matlab_SEMHandle,osWaitForever);
+	  GetAPPS1_Data(&rtU.APPS1);
+	  GetAPPS2_Data(&rtU.APPS2);
+	  GetBSE_Data(&rtU.BrakeEncoder);
+	  rtU.START=!GetStartButton();
+	  rtU.Voltage=CAN_MC_GetBusDC();
+	  rtU.speed=CAN_MC_GetSpeed();
+	  rtU.RFE=GetRFE();
+	  rtU.CAN_STAT=HAL_CAN_GetError(&hcan);
+	  rtU.ADC_STAT=ADC_GetStatus();
 	  Matlab_Step();
+	  CAN_MC_TorqueCommand(rtY.BamocarTorqueOut_CAN);
+	  WritePrecharge(rtY.PRECH);
   }
   /* USER CODE END Matlab_Entry */
 }
@@ -337,24 +357,13 @@ void TB_CAN_Entry(void const * argument)
   /* USER CODE BEGIN TB_CAN_Entry */
 	CanTxMsgTypeDef Tx;
   /* Infinite loop */
+
   for(;;)
   {
     osDelay(1000);
-    CAN_MC_TorqueCommand(1000);
     WriteLED_Green(0);
-    WritePrecharge(1);
     osDelay(1000);
-    CAN_MC_TorqueCommand(-1000);
     WriteLED_Green(1);
-    WritePrecharge(0);
-    /*Tx.DLC=6;
-    Tx.IDE=CAN_ID_STD;
-    Tx.StdId=CAN_ID_RX;
-    Tx.Data[0]=REG_BUS_DC;
-    Tx.Data[1]=1;
-    Tx.Data[2]=2;
-    hcan.pTxMsg=&Tx;
-    HAL_CAN_Transmit_IT(&hcan);*/
   }
   /* USER CODE END TB_CAN_Entry */
 }
@@ -403,6 +412,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan)
 {
 	osSemaphoreRelease(CAN_RXHandle);
+}
+
+void HAL_CAN_TxCplCallback(CAN_HandleTypeDef* hcan)
+{
+	osSemaphoreRelease(CANHandle);
 }
 
 /* USER CODE END Application */

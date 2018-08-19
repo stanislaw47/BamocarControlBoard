@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Motor'.
  *
- * Model version                  : 1.319
+ * Model version                  : 1.324
  * Simulink Coder version         : 8.13 (R2017b) 24-Jul-2017
- * C/C++ source code generated on : Thu Jun  7 16:26:38 2018
+ * C/C++ source code generated on : Tue Jul 10 11:47:41 2018
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex
@@ -227,7 +227,7 @@ extern const ConstP rtConstP;
 
 /* Model entry point functions */
 extern void Motor_initialize(void);
-extern void Motor_step(void) __attribute__((section(".ccmram")));
+extern void Motor_step(void);
 
 /*-
  * These blocks were eliminated from the model due to optimizations:

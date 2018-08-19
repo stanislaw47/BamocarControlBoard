@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Motor'.
  *
- * Model version                  : 1.319
+ * Model version                  : 1.324
  * Simulink Coder version         : 8.13 (R2017b) 24-Jul-2017
- * C/C++ source code generated on : Thu Jun  7 16:26:38 2018
+ * C/C++ source code generated on : Tue Jul 10 11:47:41 2018
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex
@@ -34,7 +34,7 @@ P rtP = {
    * Referenced by: '<S2>/1-D Lookup Table'
    */
   {
-    { 800U, 3700U },
+    { 1433U, 1833U },
 
     { 0.0F, 100.0F }
   },
@@ -43,7 +43,7 @@ P rtP = {
    * Referenced by: '<S2>/1-D Lookup Table1'
    */
   {
-    { 600U, 3000U },
+    { 2330U, 2821U },
 
     { 0.0F, 100.0F }
   },
@@ -100,22 +100,22 @@ P rtP = {
   /* Variable: A1_DoLim
    * Referenced by: '<S1>/VoltageCheck'
    */
-  800U,
+  1433U,
 
   /* Variable: A1_UpLim
    * Referenced by: '<S1>/VoltageCheck'
    */
-  3700U,
+  1833U,
 
   /* Variable: A2_DoLim
    * Referenced by: '<S1>/VoltageCheck'
    */
-  600U,
+  2330U,
 
   /* Variable: A2_UpLim
    * Referenced by: '<S1>/VoltageCheck'
    */
-  3000U,
+  2821U,
 
   /* Variable: BSE_PlausThr
    * Referenced by: '<S1>/PlausibilityCheck'

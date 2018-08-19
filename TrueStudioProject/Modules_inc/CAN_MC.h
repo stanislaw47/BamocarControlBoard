@@ -53,7 +53,7 @@ CAN_FilterConfTypeDef RxFilter; //structure for filter
 fifo TxBuffer; //buffer for send frames
 
 static struct __CAN_MC_Data{
-	uint32_t Status;
+	int32_t Status;
 	uint16_t Speed;
 	uint16_t Current;
 	int16_t Torque;

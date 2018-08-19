@@ -12,7 +12,10 @@ void CAN_MC_Transmit(uint8_t d1, uint8_t d2, uint8_t d3){
 void CAN_MC_ReceiveCallback(void){
 	switch(hcan.pRxMsg->Data[0]){
 		case SPEED:
-			CAN_MC_Data.Speed = ((uint16_t)(hcan.pRxMsg->Data[1]) << 8) | hcan.pRxMsg->Data[2];
+			CAN_MC_Data.Speed = ((uint16_t)(hcan.pRxMsg->Data[2]) << 8) | hcan.pRxMsg->Data[1];
+			HAL_GPIO_TogglePin(LED_Y_GPIO_Port,LED_Y_Pin);
+			if (HAL_CAN_Receive_IT(&hcan, CAN_FIFO0) != HAL_OK)
+				SET_BIT(CAN_MC_Status, 1<<CAN_RX_ERROR);
 			break;
 		case CURRENT:
 			CAN_MC_Data.Current = ((uint16_t)(hcan.pRxMsg->Data[1]) << 8) | hcan.pRxMsg->Data[2];
@@ -33,7 +36,10 @@ void CAN_MC_ReceiveCallback(void){
 			CAN_MC_Data.Frg = ((uint16_t)(hcan.pRxMsg->Data[1]) << 8) | hcan.pRxMsg->Data[2];
 			break;
 		case BUS_DC:
-			CAN_MC_Data.BusDC = ((uint16_t)(hcan.pRxMsg->Data[1]) << 8) | hcan.pRxMsg->Data[2];
+			CAN_MC_Data.BusDC = ((uint16_t)(hcan.pRxMsg->Data[2]) << 8) | hcan.pRxMsg->Data[1];
+			HAL_GPIO_TogglePin(LED_R_GPIO_Port,LED_R_Pin);
+			if (HAL_CAN_Receive_IT(&hcan, CAN_FIFO0) != HAL_OK)
+				SET_BIT(CAN_MC_Status, 1<<CAN_RX_ERROR);
 			break;
 		default:{  //other data
 			CAN_MC_Data.Others = hcan.pRxMsg->Data[3];
@@ -101,7 +107,6 @@ void CAN_MC_Connect(void){
 void CAN_MC_CyclicDataEnable(void){
 	//send command to start cyclic data
 	CAN_MC_Transmit(READ, SPEED, DATA_FREQ);
-	CAN_MC_Transmit(READ, TORQUE, DATA_FREQ);
 	CAN_MC_Transmit(READ, BUS_DC, DATA_FREQ);
 }
 

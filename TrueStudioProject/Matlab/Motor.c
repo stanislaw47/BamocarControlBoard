@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Motor'.
  *
- * Model version                  : 1.319
+ * Model version                  : 1.324
  * Simulink Coder version         : 8.13 (R2017b) 24-Jul-2017
- * C/C++ source code generated on : Thu Jun  7 16:26:38 2018
+ * C/C++ source code generated on : Tue Jul 10 11:47:41 2018
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex
@@ -543,8 +543,8 @@ void Motor_step(void)
   real32_T rtb_Saturation;
   boolean_T rtb_pos_error;
   real_T rtb_Switch;
+  real32_T rtb_uDLookupTable;
   int32_T sfEvent;
-  real32_T tmp;
   uint32_T qY;
   boolean_T guard1 = false;
 
@@ -1043,140 +1043,12 @@ void Motor_step(void)
 
   /* End of Chart: '<S1>/PlausibilityHandling' */
 
-  /* Switch: '<S8>/Switch' incorporates:
-   *  Constant: '<S8>/Constant'
-   */
-  if (rtb_pos_error) {
-    rtb_Switch = 0.0;
-  } else {
-    /* Lookup_n-D: '<S11>/1-D Lookup Table' incorporates:
-     *  Gain: '<S2>/Gain'
-     *  Sum: '<S2>/Sum'
-     */
-    rtb_uDLookupTable1 = look1_ifbdtdIf_pbinlc((rtb_Saturation +
-      rtb_uDLookupTable1) * 0.5F, rtP.Torque.BP1, rtP.Torque.Table,
-      &rtDW.m_bpIndex_dn, 2U);
-
-    /* Switch: '<S12>/Switch2' incorporates:
-     *  Constant: '<S11>/Constant'
-     *  Inport: '<Root>/speed'
-     *  RelationalOperator: '<S12>/LowerRelop1'
-     *  Switch: '<S11>/Switch'
-     */
-    if (rtb_uDLookupTable1 > 100.0F) {
-      rtb_uDLookupTable1 = 100.0F;
-    } else {
-      if (rtU.speed > rtP.RegBrakingSpeedThr) {
-        /* Switch: '<S11>/Switch' incorporates:
-         *  Constant: '<S11>/Constant1'
-         */
-        sfEvent = -20;
-      } else {
-        /* Switch: '<S11>/Switch' incorporates:
-         *  Constant: '<S11>/Constant2'
-         */
-        sfEvent = 0;
-      }
-
-      /* Switch: '<S12>/Switch' incorporates:
-       *  RelationalOperator: '<S12>/UpperRelop'
-       */
-      if ((real_T)rtb_uDLookupTable1 < sfEvent) {
-        rtb_uDLookupTable1 = (real32_T)sfEvent;
-      }
-
-      /* End of Switch: '<S12>/Switch' */
-    }
-
-    /* End of Switch: '<S12>/Switch2' */
-    rtb_Switch = rtb_uDLookupTable1;
-  }
-
-  /* End of Switch: '<S8>/Switch' */
-
   /* Lookup_n-D: '<S10>/1-D Lookup Table' incorporates:
    *  Inport: '<Root>/Voltage'
    */
-  rtb_uDLookupTable1 = look1_iu16lftf_pbinlc(rtU.Voltage,
+  rtb_uDLookupTable = look1_iu16lftf_pbinlc(rtU.Voltage,
     rtConstP.uDLookupTable_bp01Data, rtConstP.uDLookupTable_tableData,
     &rtDW.m_bpIndex_l, 1U);
-
-  /* MATLAB Function: '<S10>/current reduction' */
-  /* MATLAB Function 'Motor Controller Module/current_reduction&voltage_scaling/current reduction': '<S13>:1' */
-  /* '<S13>:1:3' limit=single((80000*PowerSafetyThr/voltage)/ImaxEff*100); */
-  rtb_Saturation = 80000.0F * rtP.PowerSafetyThr / rtb_uDLookupTable1 /
-    (real32_T)rtP.ImaxEff * 100.0F;
-
-  /* Saturate: '<S10>/Saturation' */
-  if (rtb_Saturation > 100.0F) {
-    rtb_Saturation = 100.0F;
-  } else {
-    if (rtb_Saturation < 0.0F) {
-      rtb_Saturation = 0.0F;
-    }
-  }
-
-  /* End of Saturate: '<S10>/Saturation' */
-
-  /* MATLAB Function: '<S1>/Output scaling' */
-  /* MATLAB Function 'Motor Controller Module/Output scaling': '<S3>:1' */
-  /* '<S3>:1:3' pos_out=uint16(pos/100*10/PosBufferOutMaxVoltage*4096); */
-  /* '<S3>:1:4' limit_out=uint16(limit/100*10/LimitBufferOutMaxVoltage*4096); */
-  tmp = roundf((real32_T)(rtb_Switch / 100.0 * 10.0) /
-               rtP.PosBufferOutMaxVoltage * 4096.0F);
-  if (tmp < 65536.0F) {
-    if (tmp >= 0.0F) {
-      /* Outport: '<Root>/BamocarTorqueOut' */
-      rtY.BamocarTorqueOut = (uint16_T)tmp;
-    } else {
-      /* Outport: '<Root>/BamocarTorqueOut' */
-      rtY.BamocarTorqueOut = 0U;
-    }
-  } else {
-    /* Outport: '<Root>/BamocarTorqueOut' */
-    rtY.BamocarTorqueOut = MAX_uint16_T;
-  }
-
-  tmp = roundf(rtb_Saturation / 100.0F * 10.0F / rtP.LimitBufferOutMaxVoltage *
-               4096.0F);
-  if (tmp < 65536.0F) {
-    if (tmp >= 0.0F) {
-      /* Outport: '<Root>/BamocarTorqueLimit' */
-      rtY.BamocarTorqueLimit = (uint16_T)tmp;
-    } else {
-      /* Outport: '<Root>/BamocarTorqueLimit' */
-      rtY.BamocarTorqueLimit = 0U;
-    }
-  } else {
-    /* Outport: '<Root>/BamocarTorqueLimit' */
-    rtY.BamocarTorqueLimit = MAX_uint16_T;
-  }
-
-  /* End of MATLAB Function: '<S1>/Output scaling' */
-
-  /* MATLAB Function: '<S1>/Output scaling CAN' */
-  /* MATLAB Function 'Motor Controller Module/Output scaling CAN': '<S4>:1' */
-  /* '<S4>:1:3' pos_out=int16(pos/100*32767); */
-  /* '<S4>:1:4' limit_out=uint16(limit); */
-  rtb_Switch = rt_roundd_snf(rtb_Switch / 100.0 * 32767.0);
-  if (rtb_Switch < 32768.0) {
-    /* Outport: '<Root>/BamocarTorqueOut_CAN' */
-    rtY.BamocarTorqueOut_CAN = (int16_T)rtb_Switch;
-  } else {
-    /* Outport: '<Root>/BamocarTorqueOut_CAN' */
-    rtY.BamocarTorqueOut_CAN = MAX_int16_T;
-  }
-
-  tmp = roundf(rtb_Saturation);
-  if (tmp < 65536.0F) {
-    /* Outport: '<Root>/BamocarCurrentLimitCAN' */
-    rtY.BamocarCurrentLimitCAN = (uint16_T)tmp;
-  } else {
-    /* Outport: '<Root>/BamocarCurrentLimitCAN' */
-    rtY.BamocarCurrentLimitCAN = MAX_uint16_T;
-  }
-
-  /* End of MATLAB Function: '<S1>/Output scaling CAN' */
 
   /* Chart: '<S1>/TS activation' incorporates:
    *  Inport: '<Root>/ADC_STAT'
@@ -1267,94 +1139,71 @@ void Motor_step(void)
         /* '<S7>:65:1' RDY=false */
         rtY.RDY = false;
       } else {
-        switch (rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION) {
-         case IN_MOTOR_CONTROLLER_OFF:
+        /* '<S7>:72:1' sf_internal_predicateOutput = ... */
+        /* '<S7>:72:1' ~RFE; */
+        if (!rtU.RFE) {
+          /* Transition: '<S7>:72' */
+          /* Exit Internal 'MOTOR_CONTROLLER_ACTIVATION': '<S7>:32' */
+          rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION = IN_NO_ACTIVE_CHILD;
+          rtDW.bitsForTID0.is_c11_Motor = IN_ERROR_RFE;
+
           /* Outport: '<Root>/RDY' */
+          /* Entry 'ERROR_RFE': '<S7>:64' */
+          /* '<S7>:64:1' RDY=false */
           rtY.RDY = false;
 
-          /* During 'MOTOR_CONTROLLER_OFF': '<S7>:9' */
-          /* '<S7>:47:1' sf_internal_predicateOutput = ... */
-          /* '<S7>:47:1' brake_vol>BrakeVolMotorControllerOnThr & start; */
-          if ((rtU.BrakeEncoder > rtP.BrakeVolMotorControllerOnThr) && rtU.START)
-          {
-            /* Transition: '<S7>:47' */
-            rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
-              IN_MOTOR_CONTROLLER_ON_CHECK;
-            rtDW.temporalCounter_i1 = 0U;
-          }
-          break;
-
-         case IN_MOTOR_CONTROLLER_OFF_CHECK:
-          /* During 'MOTOR_CONTROLLER_OFF_CHECK': '<S7>:25' */
-          /* '<S7>:41:1' sf_internal_predicateOutput = ... */
-          /* '<S7>:41:1' (after(CheckTimeout,msec)) && (start); */
-          if ((rtDW.temporalCounter_i1 * 50U >= rtP.CheckTimeout) && rtU.START)
-          {
-            /* Transition: '<S7>:41' */
-            rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
-              IN_MOTOR_CONTROLLER_OFF_CHECK_1;
-          } else {
-            /* '<S7>:52:1' sf_internal_predicateOutput = ... */
-            /* '<S7>:52:1' ~start; */
-            if (!rtU.START) {
-              /* Transition: '<S7>:52' */
-              rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
-                IN_MOTOR_CONTROLLER_ON;
-
-              /* Outport: '<Root>/RDY' */
-              /* Entry 'MOTOR_CONTROLLER_ON': '<S7>:13' */
-              /* '<S7>:13:1' RDY=true */
-              rtY.RDY = true;
-            }
-          }
-          break;
-
-         case IN_MOTOR_CONTROLLER_OFF_CHECK_1:
-          /* During 'MOTOR_CONTROLLER_OFF_CHECK_1': '<S7>:40' */
-          /* '<S7>:49:1' sf_internal_predicateOutput = ... */
-          /* '<S7>:49:1' ~start; */
-          if (!rtU.START) {
-            /* Transition: '<S7>:49' */
-            rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
-              IN_MOTOR_CONTROLLER_OFF;
-
+          /* Outport: '<Root>/PRECH' */
+          /* '<S7>:64:1' precharge=false */
+          rtY.PRECH = false;
+        } else {
+          switch (rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION) {
+           case IN_MOTOR_CONTROLLER_OFF:
             /* Outport: '<Root>/RDY' */
-            /* Entry 'MOTOR_CONTROLLER_OFF': '<S7>:9' */
-            /* '<S7>:9:1' RDY=false */
             rtY.RDY = false;
-          }
-          break;
 
-         case IN_MOTOR_CONTROLLER_ON:
-          /* Outport: '<Root>/RDY' */
-          rtY.RDY = true;
+            /* During 'MOTOR_CONTROLLER_OFF': '<S7>:9' */
+            /* '<S7>:47:1' sf_internal_predicateOutput = ... */
+            /* '<S7>:47:1' brake_vol>BrakeVolMotorControllerOnThr & start; */
+            if ((rtU.BrakeEncoder > rtP.BrakeVolMotorControllerOnThr) &&
+                rtU.START) {
+              /* Transition: '<S7>:47' */
+              rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
+                IN_MOTOR_CONTROLLER_ON_CHECK;
+              rtDW.temporalCounter_i1 = 0U;
+            }
+            break;
 
-          /* During 'MOTOR_CONTROLLER_ON': '<S7>:13' */
-          /* '<S7>:26:1' sf_internal_predicateOutput = ... */
-          /* '<S7>:26:1' start; */
-          if (rtU.START) {
-            /* Transition: '<S7>:26' */
-            rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
-              IN_MOTOR_CONTROLLER_OFF_CHECK;
-            rtDW.temporalCounter_i1 = 0U;
-          }
-          break;
+           case IN_MOTOR_CONTROLLER_OFF_CHECK:
+            /* During 'MOTOR_CONTROLLER_OFF_CHECK': '<S7>:25' */
+            /* '<S7>:41:1' sf_internal_predicateOutput = ... */
+            /* '<S7>:41:1' (after(CheckTimeout,msec)) && (start); */
+            if ((rtDW.temporalCounter_i1 * 50U >= rtP.CheckTimeout) && rtU.START)
+            {
+              /* Transition: '<S7>:41' */
+              rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
+                IN_MOTOR_CONTROLLER_OFF_CHECK_1;
+            } else {
+              /* '<S7>:52:1' sf_internal_predicateOutput = ... */
+              /* '<S7>:52:1' ~start; */
+              if (!rtU.START) {
+                /* Transition: '<S7>:52' */
+                rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
+                  IN_MOTOR_CONTROLLER_ON;
 
-         case IN_MOTOR_CONTROLLER_ON_CHECK:
-          /* During 'MOTOR_CONTROLLER_ON_CHECK': '<S7>:46' */
-          /* '<S7>:48:1' sf_internal_predicateOutput = ... */
-          /* '<S7>:48:1' (after(CheckTimeout,msec)) && (brake_vol>BrakeVolMotorControllerOnThr & start); */
-          if ((rtDW.temporalCounter_i1 * 50U >= rtP.CheckTimeout) &&
-              ((rtU.BrakeEncoder > rtP.BrakeVolMotorControllerOnThr) &&
-               rtU.START)) {
-            /* Transition: '<S7>:48' */
-            rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
-              IN_MOTOR_CONTROLLER_ON_CHECK1;
-          } else {
-            /* '<S7>:50:1' sf_internal_predicateOutput = ... */
-            /* '<S7>:50:1' ~start; */
+                /* Outport: '<Root>/RDY' */
+                /* Entry 'MOTOR_CONTROLLER_ON': '<S7>:13' */
+                /* '<S7>:13:1' RDY=true */
+                rtY.RDY = true;
+              }
+            }
+            break;
+
+           case IN_MOTOR_CONTROLLER_OFF_CHECK_1:
+            /* During 'MOTOR_CONTROLLER_OFF_CHECK_1': '<S7>:40' */
+            /* '<S7>:49:1' sf_internal_predicateOutput = ... */
+            /* '<S7>:49:1' ~start; */
             if (!rtU.START) {
-              /* Transition: '<S7>:50' */
+              /* Transition: '<S7>:49' */
               rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
                 IN_MOTOR_CONTROLLER_OFF;
 
@@ -1363,24 +1212,65 @@ void Motor_step(void)
               /* '<S7>:9:1' RDY=false */
               rtY.RDY = false;
             }
-          }
-          break;
+            break;
 
-         default:
-          /* During 'MOTOR_CONTROLLER_ON_CHECK1': '<S7>:21' */
-          /* '<S7>:23:1' sf_internal_predicateOutput = ... */
-          /* '<S7>:23:1' ~start; */
-          if (!rtU.START) {
-            /* Transition: '<S7>:23' */
-            rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
-              IN_MOTOR_CONTROLLER_ON;
-
+           case IN_MOTOR_CONTROLLER_ON:
             /* Outport: '<Root>/RDY' */
-            /* Entry 'MOTOR_CONTROLLER_ON': '<S7>:13' */
-            /* '<S7>:13:1' RDY=true */
             rtY.RDY = true;
+
+            /* During 'MOTOR_CONTROLLER_ON': '<S7>:13' */
+            /* '<S7>:26:1' sf_internal_predicateOutput = ... */
+            /* '<S7>:26:1' start; */
+            if (rtU.START) {
+              /* Transition: '<S7>:26' */
+              rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
+                IN_MOTOR_CONTROLLER_OFF_CHECK;
+              rtDW.temporalCounter_i1 = 0U;
+            }
+            break;
+
+           case IN_MOTOR_CONTROLLER_ON_CHECK:
+            /* During 'MOTOR_CONTROLLER_ON_CHECK': '<S7>:46' */
+            /* '<S7>:48:1' sf_internal_predicateOutput = ... */
+            /* '<S7>:48:1' (after(CheckTimeout,msec)) && (brake_vol>BrakeVolMotorControllerOnThr & start); */
+            if ((rtDW.temporalCounter_i1 * 50U >= rtP.CheckTimeout) &&
+                ((rtU.BrakeEncoder > rtP.BrakeVolMotorControllerOnThr) &&
+                 rtU.START)) {
+              /* Transition: '<S7>:48' */
+              rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
+                IN_MOTOR_CONTROLLER_ON_CHECK1;
+            } else {
+              /* '<S7>:50:1' sf_internal_predicateOutput = ... */
+              /* '<S7>:50:1' ~start; */
+              if (!rtU.START) {
+                /* Transition: '<S7>:50' */
+                rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
+                  IN_MOTOR_CONTROLLER_OFF;
+
+                /* Outport: '<Root>/RDY' */
+                /* Entry 'MOTOR_CONTROLLER_OFF': '<S7>:9' */
+                /* '<S7>:9:1' RDY=false */
+                rtY.RDY = false;
+              }
+            }
+            break;
+
+           default:
+            /* During 'MOTOR_CONTROLLER_ON_CHECK1': '<S7>:21' */
+            /* '<S7>:23:1' sf_internal_predicateOutput = ... */
+            /* '<S7>:23:1' ~start; */
+            if (!rtU.START) {
+              /* Transition: '<S7>:23' */
+              rtDW.bitsForTID0.is_MOTOR_CONTROLLER_ACTIVATION =
+                IN_MOTOR_CONTROLLER_ON;
+
+              /* Outport: '<Root>/RDY' */
+              /* Entry 'MOTOR_CONTROLLER_ON': '<S7>:13' */
+              /* '<S7>:13:1' RDY=true */
+              rtY.RDY = true;
+            }
+            break;
           }
-          break;
         }
       }
       break;
@@ -1409,7 +1299,7 @@ void Motor_step(void)
           /* During 'INITIAL': '<S7>:1' */
           /* '<S7>:8:1' sf_internal_predicateOutput = ... */
           /* '<S7>:8:1' voltage>PrechargeVolThr; */
-          if (rtb_uDLookupTable1 > rtP.PrechargeVolThr) {
+          if (rtb_uDLookupTable > rtP.PrechargeVolThr) {
             /* Transition: '<S7>:8' */
             rtDW.bitsForTID0.is_PRECHARGE = IN_PRECHARGE_CHECK;
             rtDW.temporalCounter_i1 = 0U;
@@ -1421,7 +1311,7 @@ void Motor_step(void)
           /* '<S7>:10:1' sf_internal_predicateOutput = ... */
           /* '<S7>:10:1' (after(CheckTimeout,msec)) && (voltage>PrechargeVolThr); */
           if ((rtDW.temporalCounter_i1 * 50U >= rtP.CheckTimeout) &&
-              (rtb_uDLookupTable1 > rtP.PrechargeVolThr)) {
+              (rtb_uDLookupTable > rtP.PrechargeVolThr)) {
             /* Transition: '<S7>:10' */
             rtDW.bitsForTID0.is_PRECHARGE = IN_PRECHARGE_ON;
 
@@ -1458,6 +1348,137 @@ void Motor_step(void)
   }
 
   /* End of Chart: '<S1>/TS activation' */
+
+  /* Switch: '<S8>/Switch' incorporates:
+   *  Constant: '<S8>/Constant'
+   *  Logic: '<S8>/Logical Operator'
+   *  Logic: '<S8>/Logical Operator1'
+   *  Outport: '<Root>/RDY'
+   */
+  if (rtb_pos_error && (!rtY.RDY)) {
+    rtb_Switch = 0.0;
+  } else {
+    /* Lookup_n-D: '<S11>/1-D Lookup Table' incorporates:
+     *  Gain: '<S2>/Gain'
+     *  Sum: '<S2>/Sum'
+     */
+    rtb_uDLookupTable1 = look1_ifbdtdIf_pbinlc((rtb_Saturation +
+      rtb_uDLookupTable1) * 0.5F, rtP.Torque.BP1, rtP.Torque.Table,
+      &rtDW.m_bpIndex_dn, 2U);
+
+    /* Switch: '<S12>/Switch2' incorporates:
+     *  Constant: '<S11>/Constant'
+     *  Inport: '<Root>/speed'
+     *  RelationalOperator: '<S12>/LowerRelop1'
+     *  Switch: '<S11>/Switch'
+     */
+    if (rtb_uDLookupTable1 > 100.0F) {
+      rtb_uDLookupTable1 = 100.0F;
+    } else {
+      if (rtU.speed > rtP.RegBrakingSpeedThr) {
+        /* Switch: '<S11>/Switch' incorporates:
+         *  Constant: '<S11>/Constant1'
+         */
+        sfEvent = -20;
+      } else {
+        /* Switch: '<S11>/Switch' incorporates:
+         *  Constant: '<S11>/Constant2'
+         */
+        sfEvent = 0;
+      }
+
+      /* Switch: '<S12>/Switch' incorporates:
+       *  RelationalOperator: '<S12>/UpperRelop'
+       */
+      if ((real_T)rtb_uDLookupTable1 < sfEvent) {
+        rtb_uDLookupTable1 = (real32_T)sfEvent;
+      }
+
+      /* End of Switch: '<S12>/Switch' */
+    }
+
+    /* End of Switch: '<S12>/Switch2' */
+    rtb_Switch = rtb_uDLookupTable1;
+  }
+
+  /* End of Switch: '<S8>/Switch' */
+
+  /* MATLAB Function: '<S10>/current reduction' */
+  /* MATLAB Function 'Motor Controller Module/current_reduction&voltage_scaling/current reduction': '<S13>:1' */
+  /* '<S13>:1:3' limit=single((80000*PowerSafetyThr/voltage)/ImaxEff*100); */
+  rtb_uDLookupTable = 80000.0F * rtP.PowerSafetyThr / rtb_uDLookupTable /
+    (real32_T)rtP.ImaxEff * 100.0F;
+
+  /* Saturate: '<S10>/Saturation' */
+  if (rtb_uDLookupTable > 100.0F) {
+    rtb_uDLookupTable = 100.0F;
+  } else {
+    if (rtb_uDLookupTable < 0.0F) {
+      rtb_uDLookupTable = 0.0F;
+    }
+  }
+
+  /* End of Saturate: '<S10>/Saturation' */
+
+  /* MATLAB Function: '<S1>/Output scaling' */
+  /* MATLAB Function 'Motor Controller Module/Output scaling': '<S3>:1' */
+  /* '<S3>:1:3' pos_out=uint16(pos/100*10/PosBufferOutMaxVoltage*4096); */
+  /* '<S3>:1:4' limit_out=uint16(limit/100*10/LimitBufferOutMaxVoltage*4096); */
+  rtb_uDLookupTable1 = roundf((real32_T)(rtb_Switch / 100.0 * 10.0) /
+    rtP.PosBufferOutMaxVoltage * 4096.0F);
+  if (rtb_uDLookupTable1 < 65536.0F) {
+    if (rtb_uDLookupTable1 >= 0.0F) {
+      /* Outport: '<Root>/BamocarTorqueOut' */
+      rtY.BamocarTorqueOut = (uint16_T)rtb_uDLookupTable1;
+    } else {
+      /* Outport: '<Root>/BamocarTorqueOut' */
+      rtY.BamocarTorqueOut = 0U;
+    }
+  } else {
+    /* Outport: '<Root>/BamocarTorqueOut' */
+    rtY.BamocarTorqueOut = MAX_uint16_T;
+  }
+
+  rtb_uDLookupTable1 = roundf(rtb_uDLookupTable / 100.0F * 10.0F /
+    rtP.LimitBufferOutMaxVoltage * 4096.0F);
+  if (rtb_uDLookupTable1 < 65536.0F) {
+    if (rtb_uDLookupTable1 >= 0.0F) {
+      /* Outport: '<Root>/BamocarTorqueLimit' */
+      rtY.BamocarTorqueLimit = (uint16_T)rtb_uDLookupTable1;
+    } else {
+      /* Outport: '<Root>/BamocarTorqueLimit' */
+      rtY.BamocarTorqueLimit = 0U;
+    }
+  } else {
+    /* Outport: '<Root>/BamocarTorqueLimit' */
+    rtY.BamocarTorqueLimit = MAX_uint16_T;
+  }
+
+  /* End of MATLAB Function: '<S1>/Output scaling' */
+
+  /* MATLAB Function: '<S1>/Output scaling CAN' */
+  /* MATLAB Function 'Motor Controller Module/Output scaling CAN': '<S4>:1' */
+  /* '<S4>:1:3' pos_out=int16(pos/100*32767); */
+  /* '<S4>:1:4' limit_out=uint16(limit); */
+  rtb_Switch = rt_roundd_snf(rtb_Switch / 100.0 * 32767.0);
+  if (rtb_Switch < 32768.0) {
+    /* Outport: '<Root>/BamocarTorqueOut_CAN' */
+    rtY.BamocarTorqueOut_CAN = (int16_T)rtb_Switch;
+  } else {
+    /* Outport: '<Root>/BamocarTorqueOut_CAN' */
+    rtY.BamocarTorqueOut_CAN = MAX_int16_T;
+  }
+
+  rtb_uDLookupTable1 = roundf(rtb_uDLookupTable);
+  if (rtb_uDLookupTable1 < 65536.0F) {
+    /* Outport: '<Root>/BamocarCurrentLimitCAN' */
+    rtY.BamocarCurrentLimitCAN = (uint16_T)rtb_uDLookupTable1;
+  } else {
+    /* Outport: '<Root>/BamocarCurrentLimitCAN' */
+    rtY.BamocarCurrentLimitCAN = MAX_uint16_T;
+  }
+
+  /* End of MATLAB Function: '<S1>/Output scaling CAN' */
 }
 
 /* Model initialize function */
