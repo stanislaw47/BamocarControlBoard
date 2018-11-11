@@ -270,7 +270,7 @@ void CAN_IRQ_Entry(void const * argument)
 {
   /* USER CODE BEGIN CAN_IRQ_Entry */
 	CAN_MC_Init();
-	osDelay(7000);
+	osDelay(13000);
 	CAN_MC_CyclicDataEnable();
 	osSemaphoreRelease(MatlabCanSyncHandle);
   /* Infinite loop */
@@ -283,7 +283,7 @@ void CAN_IRQ_Entry(void const * argument)
 }
 
 /* Matlab_Entry function */
-void Matlab_Entry(void const * argument)
+void  Matlab_Entry(void const * argument)
 {
   /* USER CODE BEGIN Matlab_Entry */
 	Matlab_Init();
@@ -298,8 +298,8 @@ void Matlab_Entry(void const * argument)
 	  GetBSE_Data(&rtU.BrakeEncoder);
 	  rtU.START=!GetStartButton();
 	  //for tests only
-	  rtU.Voltage = 4000;
-	  //rtU.Voltage=CAN_MC_GetBusDC();
+	  //rtU.Voltage = 4000;
+	  rtU.Voltage=CAN_MC_GetBusDC();
 	  temp=-CAN_MC_GetSpeed();
 	  if(temp>32767)
 		  temp = 0;

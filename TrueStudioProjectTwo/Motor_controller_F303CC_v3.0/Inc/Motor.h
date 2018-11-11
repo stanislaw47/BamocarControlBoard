@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Motor'.
  *
- * Model version                  : 1.324
- * Simulink Coder version         : 8.13 (R2017b) 24-Jul-2017
- * C/C++ source code generated on : Tue Jul 10 11:47:41 2018
+ * Model version                  : 1.326
+ * Simulink Coder version         : 8.14 (R2018a) 06-Feb-2018
+ * C/C++ source code generated on : Sun Sep 23 13:53:11 2018
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex
@@ -27,6 +27,17 @@
 #endif                                 /* Motor_COMMON_INCLUDES_ */
 
 /* Macros for accessing real-time model data structure */
+#ifndef rtmGetErrorStatus
+# define rtmGetErrorStatus(rtm)        ((rtm)->errorStatus)
+#endif
+
+#ifndef rtmSetErrorStatus
+# define rtmSetErrorStatus(rtm, val)   ((rtm)->errorStatus = (val))
+#endif
+
+/* Forward declaration for rtModel */
+typedef struct tag_RTM RT_MODEL;
+
 #ifndef DEFINED_TYPEDEF_FOR_A1_scalingData_
 #define DEFINED_TYPEDEF_FOR_A1_scalingData_
 
@@ -57,38 +68,36 @@ typedef struct {
 
 #endif
 
-/* Block signals and states (auto storage) for system '<Root>' */
+/* Block signals and states (default storage) for system '<Root>' */
 typedef struct {
   uint32_T m_bpIndex;                  /* '<S2>/1-D Lookup Table' */
   uint32_T m_bpIndex_d;                /* '<S2>/1-D Lookup Table1' */
   uint32_T m_bpIndex_l;                /* '<S10>/1-D Lookup Table' */
   uint32_T m_bpIndex_dn;               /* '<S11>/1-D Lookup Table' */
   uint32_T temporalCounter_i1;         /* '<S1>/TS activation' */
-  uint32_T temporalCounter_i1_m;       /* '<S1>/PlausibilityHandling' */
-  struct {
-    uint_T is_V:4;                     /* '<S1>/VoltageCheck' */
-    uint_T is_c11_Motor:3;             /* '<S1>/TS activation' */
-    uint_T is_MOTOR_CONTROLLER_ACTIVATION:3;/* '<S1>/TS activation' */
-    uint_T is_A1:2;                    /* '<S1>/VoltageCheck' */
-    uint_T is_A2:2;                    /* '<S1>/VoltageCheck' */
-    uint_T is_B:2;                     /* '<S1>/VoltageCheck' */
-    uint_T is_PRECHARGE:2;             /* '<S1>/TS activation' */
-    uint_T is_c8_Motor:2;              /* '<S1>/PlausibilityHandling' */
-    uint_T is_APPS_PlausibilityCheck_EV2_3:2;/* '<S1>/PlausibilityCheck' */
-    uint_T is_BSE_PlausiblilityCheck_EV2_5:2;/* '<S1>/PlausibilityCheck' */
-    uint_T is_active_c12_Motor:1;      /* '<S1>/VoltageCheck' */
-    uint_T is_c12_Motor:1;             /* '<S1>/VoltageCheck' */
-    uint_T is_active_A1:1;             /* '<S1>/VoltageCheck' */
-    uint_T is_active_A2:1;             /* '<S1>/VoltageCheck' */
-    uint_T is_active_B:1;              /* '<S1>/VoltageCheck' */
-    uint_T is_active_V:1;              /* '<S1>/VoltageCheck' */
-    uint_T is_active_c11_Motor:1;      /* '<S1>/TS activation' */
-    uint_T is_active_c8_Motor:1;       /* '<S1>/PlausibilityHandling' */
-    uint_T is_active_c7_Motor:1;       /* '<S1>/PlausibilityCheck' */
-  } bitsForTID0;
+  uint32_T temporalCounter_i1_p;       /* '<S1>/PlausibilityHandling' */
+  uint8_T is_active_c12_Motor;         /* '<S1>/VoltageCheck' */
+  uint8_T is_c12_Motor;                /* '<S1>/VoltageCheck' */
+  uint8_T is_A1;                       /* '<S1>/VoltageCheck' */
+  uint8_T is_active_A1;                /* '<S1>/VoltageCheck' */
+  uint8_T is_A2;                       /* '<S1>/VoltageCheck' */
+  uint8_T is_active_A2;                /* '<S1>/VoltageCheck' */
+  uint8_T is_B;                        /* '<S1>/VoltageCheck' */
+  uint8_T is_active_B;                 /* '<S1>/VoltageCheck' */
+  uint8_T is_V;                        /* '<S1>/VoltageCheck' */
+  uint8_T is_active_V;                 /* '<S1>/VoltageCheck' */
+  uint8_T is_active_c11_Motor;         /* '<S1>/TS activation' */
+  uint8_T is_c11_Motor;                /* '<S1>/TS activation' */
+  uint8_T is_PRECHARGE;                /* '<S1>/TS activation' */
+  uint8_T is_MOTOR_CONTROLLER_ACTIVATION;/* '<S1>/TS activation' */
+  uint8_T is_active_c8_Motor;          /* '<S1>/PlausibilityHandling' */
+  uint8_T is_c8_Motor;                 /* '<S1>/PlausibilityHandling' */
+  uint8_T is_active_c7_Motor;          /* '<S1>/PlausibilityCheck' */
+  uint8_T is_APPS_PlausibilityCheck_EV2_3;/* '<S1>/PlausibilityCheck' */
+  uint8_T is_BSE_PlausiblilityCheck_EV2_5;/* '<S1>/PlausibilityCheck' */
 } DW;
 
-/* Constant parameters (auto storage) */
+/* Constant parameters (default storage) */
 typedef struct {
   /* Computed Parameter: uDLookupTable_tableData
    * Referenced by: '<S10>/1-D Lookup Table'
@@ -101,7 +110,7 @@ typedef struct {
   uint16_T uDLookupTable_bp01Data[2];
 } ConstP;
 
-/* External inputs (root inport signals with auto storage) */
+/* External inputs (root inport signals with default storage) */
 typedef struct {
   uint16_T APPS1;                      /* '<Root>/APPS1' */
   uint16_T APPS2;                      /* '<Root>/APPS2' */
@@ -114,7 +123,7 @@ typedef struct {
   uint16_T speed;                      /* '<Root>/speed' */
 } ExtU;
 
-/* External outputs (root outports fed by signals with auto storage) */
+/* External outputs (root outports fed by signals with default storage) */
 typedef struct {
   uint16_T BamocarTorqueOut;           /* '<Root>/BamocarTorqueOut' */
   uint16_T BamocarTorqueLimit;         /* '<Root>/BamocarTorqueLimit' */
@@ -125,9 +134,11 @@ typedef struct {
   boolean_T VolStat;                   /* '<Root>/VolStat' */
   boolean_T APPS_PlausStat;            /* '<Root>/APPS_PlausStat' */
   boolean_T BSE_PlausStat;             /* '<Root>/BSE_PlausStat' */
+  real32_T pos1;                       /* '<Root>/pos1' */
+  real32_T pos2;                       /* '<Root>/pos2' */
 } ExtY;
 
-/* Parameters (auto storage) */
+/* Parameters (default storage) */
 struct P_ {
   TorqueScalingData Torque;            /* Variable: Torque
                                         * Referenced by: '<S11>/1-D Lookup Table'
@@ -207,27 +218,35 @@ struct P_ {
                                         */
 };
 
-/* Parameters (auto storage) */
+/* Parameters (default storage) */
 typedef struct P_ P;
 
-/* Block parameters (auto storage) */
+/* Real-time Model Data Structure */
+struct tag_RTM {
+  const char_T * volatile errorStatus;
+};
+
+/* Block parameters (default storage) */
 extern P rtP;
 
-/* Block signals and states (auto storage) */
+/* Block signals and states (default storage) */
 extern DW rtDW;
 
-/* External inputs (root inport signals with auto storage) */
+/* External inputs (root inport signals with default storage) */
 extern ExtU rtU;
 
-/* External outputs (root outports fed by signals with auto storage) */
+/* External outputs (root outports fed by signals with default storage) */
 extern ExtY rtY;
 
-/* Constant parameters (auto storage) */
+/* Constant parameters (default storage) */
 extern const ConstP rtConstP;
 
 /* Model entry point functions */
 extern void Motor_initialize(void);
 extern void Motor_step(void);
+
+/* Real-time Model object */
+extern RT_MODEL *const rtM;
 
 /*-
  * These blocks were eliminated from the model due to optimizations:

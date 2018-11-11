@@ -27,14 +27,14 @@ P rtP = {
   {
     { 0.0, 20.0, 100.0 },
 
-    { -20.0, 0.0, 100.0 }
+    { 0.0, 0.0, 100.0 }
   },
 
   /* Variable: A1_scaling
    * Referenced by: '<S2>/1-D Lookup Table'
    */
   {
-    { 1460U, 1884U },
+    { 1384U, 1810U },
 
     { 0.0F, 100.0F }
   },
@@ -43,7 +43,7 @@ P rtP = {
    * Referenced by: '<S2>/1-D Lookup Table1'
    */
   {
-    { 2479U, 2900U },
+    { 1955U, 2400U },
 
     { 0.0F, 100.0F }
   },
@@ -100,22 +100,22 @@ P rtP = {
   /* Variable: A1_DoLim
    * Referenced by: '<S1>/VoltageCheck'
    */
-  1460U,
+  1384U,
 
   /* Variable: A1_UpLim
    * Referenced by: '<S1>/VoltageCheck'
    */
-  1884U,
+  1810U,
 
   /* Variable: A2_DoLim
    * Referenced by: '<S1>/VoltageCheck'
    */
-  2479U,
+  1955U,
 
   /* Variable: A2_UpLim
    * Referenced by: '<S1>/VoltageCheck'
    */
-  2900U,
+  2400U,
 
   /* Variable: BSE_PlausThr
    * Referenced by: '<S1>/PlausibilityCheck'

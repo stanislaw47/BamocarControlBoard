@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Motor'.
  *
- * Model version                  : 1.324
- * Simulink Coder version         : 8.13 (R2017b) 24-Jul-2017
- * C/C++ source code generated on : Tue Jul 10 11:47:41 2018
+ * Model version                  : 1.326
+ * Simulink Coder version         : 8.14 (R2018a) 06-Feb-2018
+ * C/C++ source code generated on : Sun Sep 23 13:53:11 2018
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex
